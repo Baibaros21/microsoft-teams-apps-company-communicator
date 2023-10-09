@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
@@ -30,7 +31,8 @@ import {
   MoreHorizontal24Filled,
   ChatMultiple24Regular,
   ShareScreenStop24Regular,
-  Warning24Regular,
+    Warning24Regular,
+    Heart12Filled
 } from '@fluentui/react-icons';
 import * as microsoftTeams from '@microsoft/teams-js';
 import { cancelSentNotification, duplicateDraftNotification } from '../../apis/messageListApi';
@@ -39,6 +41,7 @@ import { formatNumber } from '../../i18n';
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from '../../routes';
 import { GetDraftMessagesSilentAction, GetSentMessagesSilentAction } from '../../actions';
 import { useAppDispatch } from '../../store';
+import './sentMessageDetails.scss';
 
 export const SentMessageDetail = (sentMessages: any) => {
   const { t } = useTranslation();
@@ -132,7 +135,10 @@ export const SentMessageDetail = (sentMessages: any) => {
               {countStatusMsg() > 0 && <TableHeaderCell key='status' aria-hidden='true' />}
               <TableHeaderCell key='recipients'>
                 <b>{t('Recipients')}</b>
-              </TableHeaderCell>
+                          </TableHeaderCell>
+                <TableHeaderCell key='reactions'>
+                    <b>{t('Reactions')}</b>
+                </TableHeaderCell>
               <TableHeaderCell key='sent'>
                 <b>{t('Sent')}</b>
               </TableHeaderCell>
@@ -157,14 +163,15 @@ export const SentMessageDetail = (sentMessages: any) => {
                   >
                     {item.title}
                   </TableCellLayout>
-                </TableCell>
+                    </TableCell>
+
                 {countStatusMsg() > 0 && (
                   <TableCell tabIndex={0} role='gridcell'>
                     <TableCellLayout truncate>
                       <span className='big-screen-visible'>{renderSendingText(item)}</span>
                     </TableCellLayout>
                   </TableCell>
-                )}
+                    )}
                 <TableCell tabIndex={0} role='gridcell'>
                   <TableCellLayout>
                     <div style={{ display: 'inline-block' }}>
@@ -212,6 +219,39 @@ export const SentMessageDetail = (sentMessages: any) => {
                       </div>
                     )}
                   </TableCellLayout>
+                    </TableCell>
+
+                    <TableCell tabIndex={0} role='gridcell'>
+                        <TableCellLayout >
+
+                        <div className="reactions">
+                                <div className="reactionContainer">
+                            <Tooltip content={t('TooltipLike') || ''} relationship='label'>
+                                    <img src={getBaseUrl()+"/image/like.png"} className="reaction" />
+                            </Tooltip>
+                                <span className='recipient-text'>{item.like}</span>
+                                </div>
+                                <div className = "reactionContainer">
+                                <Tooltip content={t('TooltipHeart') || ''} relationship='label'>
+                                    <img src={getBaseUrl() + "/image/heart.png"} className="reaction" />
+                                </Tooltip>
+                                <span className='recipient-text'>{item.heart}</span>
+                            </div>
+                                <div className="reactionContainer">
+                                <Tooltip content={t('TooltipLaugh') || ''} relationship='label'>
+                                    <img src={getBaseUrl() + "/image/laugh.png"} className="reaction" />
+                                </Tooltip>
+                                <span className='recipient-text'>{item.laugh}</span>
+                            </div>
+                                <div className="reactionContainer">
+                                <Tooltip content={t('TooltipSurpised') || ''} relationship='label'>
+                                    <img src={getBaseUrl() + "/image/surprised.png"} className="reaction" />
+                                </Tooltip>
+                                    <span className='recipient-text'>{item.laugh}</span>
+                                </div>
+                                </div>
+                            
+                    </TableCellLayout>
                 </TableCell>
                 <TableCell tabIndex={0} role='gridcell'>
                   <TableCellLayout truncate>{item.sentDate}</TableCellLayout>

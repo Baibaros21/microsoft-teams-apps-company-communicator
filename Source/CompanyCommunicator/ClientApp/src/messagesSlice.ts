@@ -4,27 +4,31 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export interface MessagesState {
-  draftMessages: { action: string; payload: [] };
-  sentMessages: { action: string; payload: [] };
-  selectedMessage: { action: string; payload: {} };
-  teamsData: { action: string; payload: any[] };
-  groups: { action: string; payload: any[] };
-  queryGroups: { action: string; payload: any[] };
-  verifyGroup: { action: string; payload: boolean };
-  isDraftMessagesFetchOn: { action: string; payload: boolean };
-  isSentMessagesFetchOn: { action: string; payload: boolean };
+    draftMessages: { action: string; payload: [] };
+    sentMessages: { action: string; payload: [] };
+    filteredMessages: { action: string; payload: [] };
+    searchQuery: { action: string; payload: string };
+    selectedMessage: { action: string; payload: {} };
+    teamsData: { action: string; payload: any[] };
+    groups: { action: string; payload: any[] };
+    queryGroups: { action: string; payload: any[] };
+    verifyGroup: { action: string; payload: boolean };
+    isDraftMessagesFetchOn: { action: string; payload: boolean };
+    isSentMessagesFetchOn: { action: string; payload: boolean };
 }
 
 const initialState: MessagesState = {
-  draftMessages: { action: "FETCH_DRAFT_MESSAGES", payload: [] },
-  sentMessages: { action: "FETCH_MESSAGES", payload: [] },
-  selectedMessage: { action: "MESSAGE_SELECTED", payload: [] },
-  teamsData: { action: "GET_TEAMS_DATA", payload: [] },
-  groups: { action: "GET_GROUPS", payload: [] },
-  queryGroups: { action: "SEARCH_GROUPS", payload: [] },
-  verifyGroup: { action: "VERIFY_GROUP_ACCESS", payload: false },
-  isDraftMessagesFetchOn: { action: "DRAFT_MESSAGES_FETCH_STATUS", payload: false },
-  isSentMessagesFetchOn: { action: "SENT_MESSAGES_FETCH_STATUS", payload: false },
+    draftMessages: { action: "FETCH_DRAFT_MESSAGES", payload: [] },
+    sentMessages: { action: "FETCH_MESSAGES", payload: [] },
+    searchQuery: { action: "FETCH_SEARCH_QUERY", payload: '' },
+    filteredMessages: { action: "FETCH_FILTERED_MESSAGES", payload: [] },
+    selectedMessage: { action: "MESSAGE_SELECTED", payload: [] },
+    teamsData: { action: "GET_TEAMS_DATA", payload: [] },
+    groups: { action: "GET_GROUPS", payload: [] },
+    queryGroups: { action: "SEARCH_GROUPS", payload: [] },
+    verifyGroup: { action: "VERIFY_GROUP_ACCESS", payload: false },
+    isDraftMessagesFetchOn: { action: "DRAFT_MESSAGES_FETCH_STATUS", payload: false },
+    isSentMessagesFetchOn: { action: "SENT_MESSAGES_FETCH_STATUS", payload: false },
 };
 
 export const messagesSlice = createSlice({
@@ -39,6 +43,12 @@ export const messagesSlice = createSlice({
     },
     selectedMessage: (state, action) => {
       state.selectedMessage = action.payload;
+      },
+    updateSearchQuery: (state, action) => {
+        state.searchQuery = action.payload;
+      },
+     filteredMessages: (state, action) => {
+        state.filteredMessages = action.payload;
     },
     teamsData: (state, action) => {
       state.teamsData = action.payload;
@@ -70,7 +80,9 @@ export const {
   queryGroups,
   verifyGroup,
   isDraftMessagesFetchOn,
-  isSentMessagesFetchOn,
+    isSentMessagesFetchOn,
+    updateSearchQuery,
+    filteredMessages
 } = messagesSlice.actions;
 
 export default messagesSlice.reducer;

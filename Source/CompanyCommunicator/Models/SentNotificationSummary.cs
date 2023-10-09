@@ -39,6 +39,28 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Models
         public int Succeeded { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of recipients who have received the notification successfully.
+        /// </summary>
+        public int Like { get; set; }
+        /// <summary>
+        /// Gets or sets the number of recipients who have received the notification successfully.
+        /// </summary>
+        public int Heart { get; set; }
+        /// <summary>
+        /// Gets or sets the number of recipients who have received the notification successfully.
+        /// </summary>
+        public int Surpise { get; set; }
+        /// <summary>
+        /// Gets or sets the number of recipients who have received the notification successfully.
+        /// </summary>
+        public int Laugh { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of recipients who have received the notification successfully.
+        /// </summary>
+        public int Seen { get; set; }
+
+        /// <summary>
         /// Gets or sets the number of recipients who failed in receiving the notification.
         /// </summary>
         public int Failed { get; set; }

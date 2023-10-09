@@ -87,5 +87,25 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Models
         /// Gets or sets a value of created by.
         /// </summary>
         public string CreatedBy { get; set; }
+        /// <summary>
+        /// Gets or sets a value of number of reciepnts who have seen the message.
+        /// </summary>
+        public int Seen { get; set; }
+        /// <summary>
+        /// Gets or sets a value of number of reciepnts who have seen the message.
+        /// </summary>
+        public int Like { get; set; }
+        /// <summary>
+        /// Gets or sets the number of recipients who have received the notification successfully.
+        /// </summary>
+        public int Heart { get; set; }
+        /// <summary>
+        /// Gets or sets the number of recipients who have received the notification successfully.
+        /// </summary>
+        public int Surpise { get; set; }
+        /// <summary>
+        /// Gets or sets the number of recipients who have received the notification successfully.
+        /// </summary>
+        public int Laugh { get; set; }
     }
 }

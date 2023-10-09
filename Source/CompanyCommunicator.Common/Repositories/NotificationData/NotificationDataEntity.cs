@@ -31,15 +31,39 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
         /// </summary>
         public string Title { get; set; }
 
+
+        /// <summary>
+        /// Gets or sets the title text of the notification's content.
+        /// </summary>
+        public string Department { get; set; }
+
+
         /// <summary>
         /// Gets or sets the image link of the notification's content.
         /// </summary>
         public string ImageLink { get; set; }
 
         /// <summary>
+        /// Gets or sets the Poster Link value.
+        /// </summary>
+        public string PosterLink { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the Video Link value.
+        /// </summary>
+        public string VideoLink { get; set; }
+
+        /// <summary>
         /// Gets or sets the blob name for image in base64 format.
         /// </summary>
         public string ImageBase64BlobName { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the blob name for the poster in base64 format.
+        /// </summary>
+        public string PosterBase64BlobName { get; set; }
 
         /// <summary>
         /// Gets or sets the summary text of the notification's content.
@@ -228,5 +252,32 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
         /// Gets or sets the payload of the durable function instance.
         /// </summary>
         public string FunctionInstancePayload { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the count of recipents who saw the message
+        /// </summary>
+        public int Seen { get; set; }
+
+        /// <summary>
+        /// Gets or sets the count of recipents who saw the message
+        /// </summary>
+        public int Like { get; set; }
+        /// <summary>
+        /// Gets or sets the count of recipents who saw the message
+        /// </summary>
+        public int Heart { get; set; }
+        /// <summary>
+        /// Gets or sets the count of recipents who saw the message
+        /// </summary>
+        public int Surprise { get; set; }
+        /// <summary>
+        /// Gets or sets the count of recipents who saw the message
+        /// </summary>
+        public int Laugh { get; set; }
+        /// <summary>
+        /// Gets or sets the Template of card message
+        /// </summary>
+        public string Template { get; set; }
     }
 }

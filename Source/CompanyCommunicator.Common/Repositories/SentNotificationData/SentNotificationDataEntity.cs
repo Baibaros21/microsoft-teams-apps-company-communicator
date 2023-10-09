@@ -166,6 +166,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotif
         public string ConversationId { get; set; }
 
         /// <summary>
+        /// Gets or sets the activity id for the recipient.
+        /// </summary>
+        public string ActivityId { get; set; }
+
+        /// <summary>
         /// Gets or sets the service URL for the recipient.
         /// </summary>
         public string ServiceUrl { get; set; }

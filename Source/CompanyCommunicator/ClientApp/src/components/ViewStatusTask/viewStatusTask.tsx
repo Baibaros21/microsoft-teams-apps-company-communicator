@@ -41,6 +41,7 @@ export interface IMessageState {
   canDownload?: boolean;
   sendingCompleted?: boolean;
   createdBy?: string;
+  seen?: number;
   isMsgDataUpdated: boolean;
 }
 
@@ -108,7 +109,8 @@ export const ViewStatusTask = () => {
         response.data.sendingStartedDate = formatDate(response.data.sendingStartedDate);
         response.data.sentDate = formatDate(response.data.sentDate);
         response.data.succeeded = formatNumber(response.data.succeeded);
-        response.data.failed = formatNumber(response.data.failed);
+          response.data.failed = formatNumber(response.data.failed);
+          response.data.seen = formatNumber(response.data.seen);
         response.data.unknown = response.data.unknown && formatNumber(response.data.unknown);
         response.data.canceled = response.data.canceled && formatNumber(response.data.canceled);
         setMessageState({ ...response.data, isMsgDataUpdated: true });
@@ -260,6 +262,11 @@ export const ViewStatusTask = () => {
                       <Text>{messageState.sendingDuration}</Text>
                     </Field>
                   </div>
+                    <div style={{ paddingBottom: '16px' }}>
+                        <Field size='large' label={t('Seen')}>
+                            <Text>{messageState.seen}</Text>
+                        </Field>
+                    </div>
                   <div style={{ paddingBottom: '16px' }}>
                     <Field size='large' label={t('Results')}>
                       <Text>{t('Success', { SuccessCount: messageState.succeeded })}</Text>

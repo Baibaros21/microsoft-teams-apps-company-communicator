@@ -17,6 +17,7 @@ import { MainContainer } from './components/MainContainer/mainContainer';
 import { NewMessage } from './components/NewMessage/newMessage';
 import { SendConfirmationTask } from './components/SendConfirmationTask/sendConfirmationTask';
 import SignInPage from './components/SignInPage/signInPage';
+import { VideoPlayer } from './components/VideoPlayerTask/videoPlayer'; 
 import SignInSimpleEnd from './components/SignInPage/signInSimpleEnd';
 import SignInSimpleStart from './components/SignInPage/signInSimpleStart';
 import { ViewStatusTask } from './components/ViewStatusTask/viewStatusTask';
@@ -65,6 +66,9 @@ export const App = () => {
               <Route exact path={`/${ROUTE_PARTS.NEW_MESSAGE}`} component={NewMessage} />
               <Route exact path={`/${ROUTE_PARTS.NEW_MESSAGE}/:${ROUTE_PARAMS.ID}`} component={NewMessage} />
               <Route exact path={`/${ROUTE_PARTS.VIEW_STATUS}/:${ROUTE_PARAMS.ID}`} component={ViewStatusTask} />
+                <Route exact path={`/${ROUTE_PARTS.VIDEO_PLAYER}/:${ROUTE_PARAMS.ID}`} component={VideoPlayer} />
+                <Route exact path={`/${ROUTE_PARTS.VIDEO_PLAYER}`} component={VideoPlayer} />
+
               <Route
                 exact
                 path={`/${ROUTE_PARTS.SEND_CONFIRMATION}/:${ROUTE_PARAMS.ID}`}

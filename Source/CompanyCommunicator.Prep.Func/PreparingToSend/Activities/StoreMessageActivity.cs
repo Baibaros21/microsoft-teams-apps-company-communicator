@@ -61,7 +61,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Prep.Func.PreparingToSend
             if (!string.IsNullOrEmpty(notification.ImageBase64BlobName)
                 && notification.ImageLink.StartsWith(Constants.ImageBase64Format))
             {
-                var cacheKeySentImage = CachePrefixImage + notification.Id;
+                var cacheKeySentImage = CachePrefixImage + notification.Id + "-image";
                 bool isCacheEntryExists = this.memoryCache.TryGetValue(cacheKeySentImage, out string imageLink);
 
                 if (!isCacheEntryExists)
@@ -74,6 +74,25 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Prep.Func.PreparingToSend
                 }
 
                 notification.ImageLink += imageLink;
+            }
+
+            // In case we have blob name instead of URL to public image.
+            if (!string.IsNullOrEmpty(notification.PosterBase64BlobName)
+                && notification.PosterLink.StartsWith(Constants.ImageBase64Format))
+            {
+                var cacheKeySentImage = CachePrefixImage + notification.Id+"-poster";
+                bool isCacheEntryExists = this.memoryCache.TryGetValue(cacheKeySentImage, out string posterLink);
+
+                if (!isCacheEntryExists)
+                {
+                    posterLink = await this.sendingNotificationDataRepository.GetImageAsync(notification.ImageBase64BlobName);
+                    this.memoryCache.Set(cacheKeySentImage, posterLink, TimeSpan.FromHours(Constants.CacheDurationInHours));
+
+                    log.LogInformation($"Successfully cached the image." +
+                                    $"\nNotificationId Id: {notification.Id}");
+                }
+
+                notification.PosterLink += posterLink;
             }
 
             var serializedContent = this.adaptiveCardCreator.CreateAdaptiveCard(notification).ToJson();

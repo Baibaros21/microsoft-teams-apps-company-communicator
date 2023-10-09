@@ -1,0 +1,12 @@
+﻿constainer {
+    display: flex;
+    width: 100%;
+}
+
+.search {
+    flex-direction: column;
+    // Prevent the example from taking the full width of the page (optional)
+    max-width: 200px;
+    float: right;
+    border-width: 12pt;
+}

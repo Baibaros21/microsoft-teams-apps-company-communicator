@@ -85,5 +85,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common
         /// cache duration in hours.
         /// </summary>
         public const int CacheDurationInHours = 6;
+
+        public const string BaseUrl = "https://companycommunicator.blueridgeit.com";
     }
 }

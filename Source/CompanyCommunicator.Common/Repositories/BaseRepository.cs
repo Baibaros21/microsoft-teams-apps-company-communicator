@@ -134,6 +134,35 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories
                 throw;
             }
         }
+        /// <inheritdoc/>
+        public async Task<IEnumerable<T>> GetNotificationByColumnFilter(string colName, string rowVal)
+        {
+            try
+            {
+                var rowKeysFilter = string.Empty;
+                var singleRowKeyFilter = TableQuery.GenerateFilterCondition(
+                        colName,
+                        QueryComparisons.Equal,
+                        rowVal);
+                if (string.IsNullOrWhiteSpace(rowKeysFilter))
+                {
+                    rowKeysFilter = singleRowKeyFilter;
+                }
+                else
+                {
+                    rowKeysFilter = TableQuery.CombineFilters(rowKeysFilter, TableOperators.Or, singleRowKeyFilter);
+                }
+                Logger.LogError(rowKeysFilter);
+                var query = new TableQuery<T>().Where(rowKeysFilter);
+                var entities = await this.ExecuteQueryAsync(query);
+                return entities;
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, ex.Message);
+                throw;
+            }
+        }
 
         /// <inheritdoc/>
         public async Task<IEnumerable<T>> GetWithFilterAsync(string filter, string partition = null)
@@ -370,5 +399,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories
                 throw;
             }
         }
+
+        
     }
 }

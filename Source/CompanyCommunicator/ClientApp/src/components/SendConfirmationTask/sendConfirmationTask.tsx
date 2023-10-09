@@ -11,27 +11,32 @@ import {
     getConsentSummaries, getDraftNotification, sendDraftNotification
 } from '../../apis/messageListApi';
 import {
-    getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle
+    getInitAdaptiveCard, setCardAuthor, setCardDeptTitle, setCardBtn, setCardImageLink, setCardSummary, setCardTitle, setCardVideoPlayerUrl, setCardVideoPlayerPoster
 } from '../AdaptiveCard/adaptiveCard';
 import { AvatarShape } from '@fluentui/react-avatar';
+import { TemplateSelection } from '../../store';
 
 export interface IMessageState {
-  id: string;
-  title: string;
-  acknowledgements?: number;
-  reactions?: number;
-  responses?: number;
-  succeeded?: number;
-  failed?: number;
-  throttled?: number;
-  sentDate?: string;
-  imageLink?: string;
-  summary?: string;
-  author?: string;
-  buttonLink?: string;
-  buttonTitle?: string;
-  createdBy?: string;
-  isDraftMsgUpdated: boolean;
+    id: string;
+    title: string;
+    acknowledgements?: number;
+    reactions?: number;
+    responses?: number;
+    succeeded?: number;
+    failed?: number;
+    throttled?: number;
+    sentDate?: string;
+    imageLink?: string;
+    summary?: string;
+    author?: string;
+    buttonLink?: string;
+    buttonTitle?: string;
+    createdBy?: string;
+    isDraftMsgUpdated: boolean; 
+    department?: string;
+    posterLink?: string;
+    videoLink?: string;
+    template: TemplateSelection;
 }
 
 export interface IConsentState {
@@ -56,7 +61,8 @@ export const SendConfirmationTask = () => {
   const [messageState, setMessageState] = React.useState<IMessageState>({
     id: "",
     title: "",
-    isDraftMsgUpdated: false,
+      isDraftMsgUpdated: false,
+      template: TemplateSelection.Default,
   });
 
   const [consentState, setConsentState] = React.useState<IConsentState>({
@@ -92,11 +98,14 @@ export const SendConfirmationTask = () => {
   }, [isCardReady, consentState.isConsentsUpdated, messageState.isDraftMsgUpdated]);
 
   const updateCardData = (msg: IMessageState) => {
-    card = getInitAdaptiveCard(msg.title);
+    card = getInitAdaptiveCard(msg.title,msg.template);
     setCardTitle(card, msg.title);
     setCardImageLink(card, msg.imageLink);
     setCardSummary(card, msg.summary);
     setCardAuthor(card, msg.author);
+    setCardDeptTitle(card, msg.department);
+    setCardVideoPlayerPoster(card, msg.posterLink);
+    setCardVideoPlayerUrl(card, msg.videoLink);
     if (msg.buttonTitle && msg.buttonLink) {
       setCardBtn(card, msg.buttonTitle, msg.buttonLink);
     }

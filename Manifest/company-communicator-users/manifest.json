@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/OfficeDev/microsoft-teams-app-schema/preview/DevPreview/MicrosoftTeams.schema.json",
+  "manifestVersion": "devPreview",
+  "version": "1.0.2",
+  "id": "148a66bb-e83d-425a-927d-09f4299a9274",
+  "packageName": "com.microsoft.teams.companycommunicator",
+  "developer": {
+    "name": "blueridgeit",
+    "websiteUrl": "http://www.blueridgeit.com",
+    "privacyUrl": "http://www.blueridgeit.com",
+    "termsOfUseUrl": "http://www.blueridgeit.com"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "MersalV6",
+    "full": "MersalV6"
+  },
+  "description": {
+    "short": "Broadcast messages to multiple teams and people in one go",
+    "full": "Broadcasts messages to multiple teams and individuals through channel posts and chat messages"
+  },
+  "accentColor": "#64A2CC",
+  "bots": [
+    {
+      "botId": "e9eb06ff-246c-4f34-9db8-515ff043eeab",
+      "scopes": [
+        "personal",
+        "team"
+      ],
+      "supportsFiles": false,
+      "isNotificationOnly": true
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "<<appDomain>>"
+  ],
+  "authorization": {
+    "permissions": {
+        "resourceSpecific": [
+        {
+            "name": "ChatMessageReadReceipt.Read.Chat",
+            "type": "Application"
+        }
+        ]
+    }
+  }
+}

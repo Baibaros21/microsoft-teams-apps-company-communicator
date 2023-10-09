@@ -1,4 +1,4 @@
-﻿// <copyright file="BaseQueue.cs" company="Microsoft">
+﻿  // <copyright file="BaseQueue.cs" company="Microsoft">
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 // </copyright>

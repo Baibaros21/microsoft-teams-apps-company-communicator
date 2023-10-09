@@ -127,20 +127,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.DraftNotificationPreview
             ITurnContext turnContext,
             NotificationDataEntity draftNotificationEntity)
         {
+            Console.WriteLine(draftNotificationEntity);
             var reply = this.CreateReply(draftNotificationEntity);
             await turnContext.SendActivityAsync(reply);
         }
 
         private IMessageActivity CreateReply(NotificationDataEntity draftNotificationEntity)
         {
-            var adaptiveCard = this.adaptiveCardCreator.CreateAdaptiveCard(
-                draftNotificationEntity.Title,
-                draftNotificationEntity.ImageLink,
-                draftNotificationEntity.Summary,
-                draftNotificationEntity.Author,
-                draftNotificationEntity.ButtonTitle,
-                draftNotificationEntity.ButtonLink,
-                draftNotificationEntity.Id);
+            var adaptiveCard = this.adaptiveCardCreator.CreateAdaptiveCard(draftNotificationEntity);
 
             var attachment = new Attachment
             {

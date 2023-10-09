@@ -109,7 +109,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
             log.LogInformation($"C# ServiceBus queue trigger function processed message: {myQueueItem}");
 
             var messageContent = JsonConvert.DeserializeObject<SendQueueMessageContent>(myQueueItem);
-
+            
             try
             {
                 // Check if notification is canceled.
@@ -126,6 +126,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                     await this.notificationService.UpdateSentNotification(
                         notificationId: messageContent.NotificationId,
                         recipientId: messageContent.RecipientData.RecipientId,
+                        activityId: string.Empty,
                         totalNumberOfSendThrottles: 0,
                         statusCode: SentNotificationDataEntity.NotSupportedStatusCode,
                         allSendStatusCodes: $"{SentNotificationDataEntity.NotSupportedStatusCode},",
@@ -147,6 +148,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                     await this.notificationService.UpdateSentNotification(
                         notificationId: messageContent.NotificationId,
                         recipientId: messageContent.RecipientData.RecipientId,
+                        activityId: string.Empty,
                         totalNumberOfSendThrottles: 0,
                         statusCode: SentNotificationDataEntity.FinalFaultedStatusCode,
                         allSendStatusCodes: $"{SentNotificationDataEntity.FinalFaultedStatusCode},",
@@ -165,6 +167,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
 
                 // Send message.
                 var messageActivity = await this.GetMessageActivity(messageContent, log);
+                
                 var response = await this.messageService.SendMessageAsync(
                     message: messageActivity,
                     serviceUrl: messageContent.GetServiceUrl(),
@@ -173,7 +176,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                     logger: log);
 
                 // Process response.
-                await this.ProcessResponseAsync(messageContent, response, log);
+                await this.ProcessResponseAsync(messageContent, response, messageActivity.Id, log);
             }
             catch (InvalidOperationException exception)
             {
@@ -197,6 +200,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                 await this.notificationService.UpdateSentNotification(
                     notificationId: messageContent.NotificationId,
                     recipientId: messageContent.RecipientData.RecipientId,
+                    activityId:string.Empty,
                     totalNumberOfSendThrottles: 0,
                     statusCode: statusCode,
                     allSendStatusCodes: $"{statusCode},",
@@ -212,10 +216,12 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
         /// </summary>
         /// <param name="messageContent">Message content.</param>
         /// <param name="sendMessageResponse">Send notification response.</param>
+        /// <param name="activityId"></param>
         /// <param name="log">Logger.</param>
         private async Task ProcessResponseAsync(
             SendQueueMessageContent messageContent,
             SendMessageResponse sendMessageResponse,
+            string activityId,
             ILogger log)
         {
             var statusReason = string.Empty;
@@ -238,6 +244,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                     notificationId: messageContent.NotificationId,
                     recipientId: messageContent.RecipientData.RecipientId,
                     totalNumberOfSendThrottles: sendMessageResponse.TotalNumberOfSendThrottles,
+                    activityId: activityId,
                     statusCode: sendMessageResponse.StatusCode,
                     allSendStatusCodes: sendMessageResponse.AllSendStatusCodes,
                     errorMessage: statusReason,

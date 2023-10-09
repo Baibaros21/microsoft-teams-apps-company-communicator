@@ -106,6 +106,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Prep.Func.PreparingToSend
             }
 
             var recipient = input.recipient;
+            
 
             // No-op for Team recipient.
             if (recipient.RecipientType == SentNotificationDataEntity.TeamRecipientType)
@@ -182,6 +183,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Prep.Func.PreparingToSend
                     serviceUrl: recipient.ServiceUrl,
                     maxAttempts: this.options.MaxAttemptsToCreateConversation,
                     log: log);
+                
 
                 return response.Result switch
                 {

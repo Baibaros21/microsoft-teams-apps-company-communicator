@@ -29,14 +29,18 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Repositories.Extensions
             string userName)
         {
             var newId = notificationRepository.TableRowKeyGenerator.CreateNewKeyOrderingOldestToMostRecent();
-
+            var imageId = newId + "-Image";
+            var posterId = newId + "-poster";
             var notificationEntity = new NotificationDataEntity
             {
                 PartitionKey = NotificationDataTableNames.DraftNotificationsPartition,
                 RowKey = newId,
                 Id = newId,
                 Title = notification.Title,
+                Department = notification.Department,
                 ImageLink = notification.ImageLink,
+                PosterLink = notification.PosterLink,
+                VideoLink = notification.VideoLink,
                 Summary = notification.Summary,
                 Author = notification.Author,
                 ButtonTitle = notification.ButtonTitle,
@@ -48,16 +52,26 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Repositories.Extensions
                 Rosters = notification.Rosters,
                 Groups = notification.Groups,
                 AllUsers = notification.AllUsers,
+                Template = notification.Template,
             };
 
             if (!string.IsNullOrEmpty(notification.ImageLink) && notification.ImageLink.StartsWith(Constants.ImageBase64Format))
             {
-                notificationEntity.ImageLink = await notificationRepository.SaveImageAsync(newId, notification.ImageLink);
-                notificationEntity.ImageBase64BlobName = newId;
+                notificationEntity.ImageLink = await notificationRepository.SaveImageAsync(imageId, notification.ImageLink);
+                notificationEntity.ImageBase64BlobName = imageId;
             }
             else
             {
                 notificationEntity.ImageLink = notification.ImageLink;
+            }
+            if (!string.IsNullOrEmpty(notification.PosterLink) && notification.PosterLink.StartsWith(Constants.ImageBase64Format))
+            {
+                notificationEntity.PosterLink = await notificationRepository.SaveImageAsync(posterId, notification.PosterLink);
+                notificationEntity.PosterBase64BlobName = posterId;
+            }
+            else
+            {
+                notificationEntity.PosterLink = notification.PosterLink;
             }
 
             await notificationRepository.CreateOrUpdateAsync(notificationEntity);

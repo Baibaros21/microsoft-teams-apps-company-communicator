@@ -181,6 +181,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                     SendingStartedDate = notificationEntity.SendingStartedDate,
                     Status = notificationEntity.GetStatus(),
                     CreatedBy = notificationEntity.CreatedBy,
+                    Seen = notificationEntity.Seen,
+                    Like = notificationEntity.Like,
+                    Heart = notificationEntity.Heart,
+                    Surpise = notificationEntity.Surprise,
+                    Laugh = notificationEntity.Laugh,
                 };
 
                 result.Add(summary);
@@ -222,8 +227,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
             {
                 Id = notificationEntity.Id,
                 Title = notificationEntity.Title,
+                Department = notificationEntity.Department,
                 ImageLink = notificationEntity.ImageLink,
                 ImageBase64BlobName = notificationEntity.ImageBase64BlobName,
+                PosterLink = notificationEntity.PosterLink,
+                PosterBase64BlobName=notificationEntity.PosterBase64BlobName,
                 Summary = notificationEntity.Summary,
                 Author = notificationEntity.Author,
                 ButtonTitle = notificationEntity.ButtonTitle,
@@ -244,6 +252,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 CanDownload = userNotificationDownload == null,
                 SendingCompleted = notificationEntity.IsCompleted(),
                 CreatedBy = notificationEntity.CreatedBy,
+                Seen = notificationEntity.Seen,
+                Like = notificationEntity.Like,
+                Heart = notificationEntity.Heart,
+                Surpise = notificationEntity.Surprise,
+                Laugh = notificationEntity.Laugh,
             };
 
             // In case we have blob name instead of URL to public image.

@@ -148,17 +148,20 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 return this.BadRequest(errorMessage);
             }
 
+            Console.WriteLine(notification);
             var notificationEntity = new NotificationDataEntity
             {
                 PartitionKey = NotificationDataTableNames.DraftNotificationsPartition,
                 RowKey = notification.Id,
                 Id = notification.Id,
+                Department = notification.Department,
                 Title = notification.Title,
                 ImageLink = notification.ImageLink,
                 Summary = notification.Summary,
                 Author = notification.Author,
                 ButtonTitle = notification.ButtonTitle,
                 ButtonLink = notification.ButtonLink,
+                Template = notification.Template,
                 CreatedBy = this.HttpContext.User?.Identity?.Name,
                 CreatedDate = DateTime.UtcNow,
                 IsDraft = true,
@@ -200,6 +203,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
             }
 
             if (!string.IsNullOrWhiteSpace(notificationEntity.ImageBase64BlobName))
+            {
+                await this.blobStorageProvider.DeleteImageBlobAsync(notificationEntity.ImageBase64BlobName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(notificationEntity.PosterBase64BlobName))
             {
                 await this.blobStorageProvider.DeleteImageBlobAsync(notificationEntity.ImageBase64BlobName);
             }
@@ -261,6 +269,9 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 Title = notificationEntity.Title,
                 ImageLink = notificationEntity.ImageLink,
                 ImageBase64BlobName = notificationEntity.ImageBase64BlobName,
+                Department = notificationEntity.Department,
+                PosterLink = notificationEntity.PosterLink,
+                PosterBase64BlobName=notificationEntity.PosterBase64BlobName,
                 Summary = notificationEntity.Summary,
                 Author = notificationEntity.Author,
                 ButtonTitle = notificationEntity.ButtonTitle,
@@ -270,12 +281,18 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 Rosters = notificationEntity.Rosters,
                 Groups = notificationEntity.Groups,
                 AllUsers = notificationEntity.AllUsers,
+                Template = notificationEntity.Template,
             };
 
             // In case we have blob name instead of URL to public image.
             if (!string.IsNullOrEmpty(notificationEntity.ImageBase64BlobName))
             {
                 result.ImageLink = await this.notificationDataRepository.GetImageAsync(notificationEntity.ImageLink, notificationEntity.ImageBase64BlobName);
+            }
+            // Download base64 data from blob convert to base64 string.
+            if (!string.IsNullOrEmpty(notificationEntity.PosterBase64BlobName))
+            {
+                result.PosterLink = await this.notificationDataRepository.GetImageAsync(notificationEntity.PosterLink, notificationEntity.PosterBase64BlobName);
             }
 
             return this.Ok(result);
@@ -358,6 +375,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
             if (!string.IsNullOrEmpty(notificationEntity.ImageBase64BlobName))
             {
                 notificationEntity.ImageLink = await this.notificationDataRepository.GetImageAsync(notificationEntity.ImageLink, notificationEntity.ImageBase64BlobName);
+            }
+            // Download base64 data from blob convert to base64 string.
+            if (!string.IsNullOrEmpty(notificationEntity.PosterBase64BlobName))
+            {
+                notificationEntity.PosterLink = await this.notificationDataRepository.GetImageAsync(notificationEntity.PosterLink, notificationEntity.PosterBase64BlobName);
             }
 
             var result = await this.draftNotificationPreviewService.SendPreview(

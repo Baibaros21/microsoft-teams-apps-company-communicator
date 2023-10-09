@@ -11,6 +11,7 @@ export enum ROUTE_PARTS {
   SIGN_IN = "signin",
   SIGN_IN_SIMPLE_START = "signin-simple-start",
   SIGN_IN_SIMPLE_END = "signin-simple-end",
+  VIDEO_PLAYER = "videoplayer"
 }
 
 export enum ROUTE_PARAMS {

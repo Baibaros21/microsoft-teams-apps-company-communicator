@@ -18,11 +18,15 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.5" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.6.0" />
-    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.19.2" />
+    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.21.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.AzureAD.UI" Version="6.0.5" />
     <PackageReference Include="Microsoft.Graph" Version="3.22.0" />
     <PackageReference Include="Microsoft.Graph.Core" Version="1.24.0" />
     <PackageReference Include="Microsoft.Identity.Web" Version="1.13.0" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.2.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
@@ -36,6 +40,10 @@
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Content Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ClientApp\src\components\VideoPlayerTask\videoPlayer.tsx" />
   </ItemGroup>
 
   <ItemGroup>

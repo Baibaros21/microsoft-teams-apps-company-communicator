@@ -138,5 +138,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             // Update service url.
             await this.appSettingsService.SetServiceUrlAsync(serviceUrl);
         }
+
     }
 }

@@ -47,6 +47,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func.Services
         /// <param name="recipientId">The recipient's unique identifier.
         ///     If the recipient is a user, this should be the AAD Id.
         ///     If the recipient is a team, this should be the team Id.</param>
+        /// <param name="activityId">Identifies the bot activity</param>
         /// <param name="totalNumberOfSendThrottles">The total number of throttled requests to send the notification.</param>
         /// <param name="statusCode">Status code.</param>
         /// <param name="allSendStatusCodes">A comma separated list representing all of the status code responses received when trying
@@ -57,6 +58,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func.Services
         public Task UpdateSentNotification(
             string notificationId,
             string recipientId,
+            string activityId,
             int totalNumberOfSendThrottles,
             int statusCode,
             string allSendStatusCodes,

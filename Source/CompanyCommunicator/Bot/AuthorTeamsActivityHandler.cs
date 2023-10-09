@@ -6,14 +6,18 @@
 namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Documents.SystemFunctions;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Teams;
     using Microsoft.Bot.Schema;
     using Microsoft.Bot.Schema.Teams;
     using Microsoft.Extensions.Localization;
+    using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.NotificationData;
+    using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotificationData;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Resources;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.User;
@@ -29,24 +33,32 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
         private readonly IUserDataService userDataService;
         private readonly IAppSettingsService appSettingsService;
         private readonly IStringLocalizer<Strings> localizer;
+        private readonly ISentNotificationDataRepository sentNotificationDataRepository;
+        private readonly INotificationDataRepository notificationDataRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorTeamsActivityHandler"/> class.
         /// </summary>
         /// <param name="teamsFileUpload">File upload service.</param>
         /// <param name="userDataService">User data service.</param>
-        /// <param name="appSettingsService">App Settings service.</param>
+        /// <param name="appSettingsService">App Settings service.</param>f
         /// <param name="localizer">Localization service.</param>
+        /// <param name="sentNotificationDataRepository"></param>
+        /// <param name="notificationDataRepository"></param>
         public AuthorTeamsActivityHandler(
             TeamsFileUpload teamsFileUpload,
             IUserDataService userDataService,
             IAppSettingsService appSettingsService,
-            IStringLocalizer<Strings> localizer)
+            IStringLocalizer<Strings> localizer, 
+            ISentNotificationDataRepository sentNotificationDataRepository, 
+            INotificationDataRepository notificationDataRepository)
         {
             this.userDataService = userDataService ?? throw new ArgumentNullException(nameof(userDataService));
             this.teamsFileUpload = teamsFileUpload ?? throw new ArgumentNullException(nameof(teamsFileUpload));
             this.appSettingsService = appSettingsService ?? throw new ArgumentNullException(nameof(appSettingsService));
             this.localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+            this.sentNotificationDataRepository = sentNotificationDataRepository ?? throw new ArgumentNullException(nameof(sentNotificationDataRepository));
+            this.notificationDataRepository = notificationDataRepository ?? throw new ArgumentNullException(nameof(notificationDataRepository));
         }
 
         /// <summary>
@@ -86,6 +98,12 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
 
             // Update service url app setting.
             await this.UpdateServiceUrl(activity.ServiceUrl);
+        }
+
+        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        {
+            // Sends an activity to the sender of the incoming activity.
+            await turnContext.SendActivityAsync(MessageFactory.Text($"Echo: {turnContext.Activity.Text}"), cancellationToken);
         }
 
         /// <summary>
@@ -149,6 +167,34 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             reply.TextFormat = "xml";
             await turnContext.SendActivityAsync(reply, cancellationToken);
         }
+        /// <inheritdoc/>
+        protected override async Task OnTeamsReadReceiptAsync(ReadReceiptInfo readReceiptInfo, ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
+        {
+            // Check if the user has read the message
+            if (!readReceiptInfo.IsNull())
+            {
+                //User has read the message
+                //Add your logic here to handle this scenario
+                //turnContext.Activity.from.Id will get the user who recived the messages
+                //use msgraph.user to retrive user name 
+                //store the name in SendNotifcationS
+                string messageId = readReceiptInfo.LastReadMessageId;
+                string activityId = turnContext.Activity.Id;
+                var result = await this.sentNotificationDataRepository.GetNotificationByColumnFilter("ActivityId", activityId);
+                var resultList = new List<SentNotificationDataEntity>(result);
+                NotificationDataEntity notification = await this.notificationDataRepository.GetAsync("SentNotifications", resultList[0].PartitionKey);
+                notification.Seen++;
+                //await this.sentNotificationDataRepository.CreateOrUpdateAsync(resultList[0]);
+                await this.notificationDataRepository.CreateOrUpdateAsync(notification);
+
+            }
+            else
+            {
+                // User has not read the message
+                // Add your logic here to handle this scenario
+            }
+
+        }
 
         private async Task UpdateServiceUrl(string serviceUrl)
         {
@@ -162,5 +208,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             // Update service url.
             await this.appSettingsService.SetServiceUrlAsync(serviceUrl);
         }
+       
     }
 }

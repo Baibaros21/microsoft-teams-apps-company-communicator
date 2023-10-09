@@ -30,27 +30,32 @@ import {
 import { InfoLabel } from '@fluentui/react-components/unstable';
 import { ArrowUpload24Regular, Dismiss12Regular } from '@fluentui/react-icons';
 import * as microsoftTeams from '@microsoft/teams-js';
+import * as ACData from 'adaptivecards-templating';
 
 import { GetDraftMessagesSilentAction, GetGroupsAction, GetTeamsDataAction, SearchGroupsAction, VerifyGroupAccessAction } from '../../actions';
 import { createDraftNotification, getDraftNotification, updateDraftNotification } from '../../apis/messageListApi';
 import { getBaseUrl } from '../../configVariables';
-import { RootState, useAppDispatch, useAppSelector } from '../../store';
-import { getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle } from '../AdaptiveCard/adaptiveCard';
+import { RootState, useAppDispatch, useAppSelector, TemplateSelection } from '../../store';
+import { getInitAdaptiveCard, setCardAuthor, setCardDeptTitle, setCardBtn, setCardImageLink, setCardSummary, setCardTitle, setCardVideoPlayerUrl, setCardVideoPlayerPoster } from '../AdaptiveCard/adaptiveCard';
 
 const validImageTypes = ['image/gif', 'image/jpeg', 'image/png', 'image/jpg'];
 
 interface IMessageState {
-  id?: string;
-  title: string;
-  imageLink?: string;
-  summary?: string;
-  author?: string;
-  buttonTitle?: string;
-  buttonLink?: string;
-  teams: any[];
-  rosters: any[];
-  groups: any[];
-  allUsers: boolean;
+id?: string;
+title: string;
+department?: string;
+imageLink?: string;
+summary?: string;
+author?: string;
+buttonTitle?: string;
+buttonLink?: string;
+posterLink?: string;
+videoLink?: string;
+template: TemplateSelection; 
+teams: any[];
+rosters: any[];
+groups: any[];
+allUsers: boolean;
 }
 
 interface ITeamTemplate {
@@ -84,17 +89,20 @@ const useFieldStyles = makeStyles({
   },
 });
 
+
+
 enum AudienceSelection {
-  Teams = 'Teams',
-  Rosters = 'Rosters',
-  Groups = 'Groups',
-  AllUsers = 'AllUsers',
-  None = 'None',
+    Teams = 'Teams',
+    Rosters = 'Rosters',
+    Groups = 'Groups',
+    AllUsers = 'AllUsers',
+    None = 'None',
 }
 
 enum CurrentPageSelection {
-  CardCreation = 'CardCreation',
-  AudienceSelection = 'AudienceSelection',
+    TemplateCreation = "TemplateCreation",
+    CardCreation = 'CardCreation',
+    AudienceSelection = 'AudienceSelection',
 }
 
 let card: any;
@@ -102,7 +110,8 @@ let card: any;
 const MAX_SELECTED_TEAMS_NUM: number = 20;
 
 export const NewMessage = () => {
-  let fileInput = React.createRef<any>();
+    let fileInput = React.createRef<any>();
+    let posterFileInput = React.createRef<any>();
   const { t } = useTranslation();
   const { id } = useParams() as any;
   const dispatch = useAppDispatch();
@@ -111,9 +120,12 @@ export const NewMessage = () => {
   const queryGroups = useAppSelector((state: RootState) => state.messages).queryGroups.payload;
   const canAccessGroups = useAppSelector((state: RootState) => state.messages).verifyGroup.payload;
   const [selectedRadioButton, setSelectedRadioButton] = React.useState(AudienceSelection.None);
-  const [pageSelection, setPageSelection] = React.useState(CurrentPageSelection.CardCreation);
+  const [selectedTemplate, setSelectedTemplate] = React.useState(TemplateSelection.Default);
+  const [pageSelection, setPageSelection] = React.useState(CurrentPageSelection.TemplateCreation);
   const [allUsersState, setAllUsersState] = React.useState(false);
-  const [imageFileName, setImageFileName] = React.useState('');
+    const [imageFileName, setImageFileName] = React.useState('');
+    const [videoFileName, setVideoFileName] = React.useState('');
+    const [posterFileName, setPosterFileName] = React.useState('');
   const [imageUploadErrorMessage, setImageUploadErrorMessage] = React.useState('');
   const [titleErrorMessage, setTitleErrorMessage] = React.useState('');
   const [btnLinkErrorMessage, setBtnLinkErrorMessage] = React.useState('');
@@ -121,8 +133,11 @@ export const NewMessage = () => {
   const [allUsersAria, setAllUserAria] = React.useState('none');
   const [groupsAria, setGroupsAria] = React.useState('none');
   const [cardAreaBorderClass, setCardAreaBorderClass] = React.useState('');
+  
+
   const [messageState, setMessageState] = React.useState<IMessageState>({
     title: '',
+    template: TemplateSelection.Default,
     teams: [],
     rosters: [],
     groups: [],
@@ -140,6 +155,21 @@ export const NewMessage = () => {
     VerifyGroupAccessAction(dispatch);
   }, []);
 
+React.useEffect(() => {
+
+
+    var template = new ACData.Template(getInitAdaptiveCard("Title", selectedTemplate));
+    card = template.expand({
+        $root: {
+
+
+        }
+    });
+    setDefaultCard(card);
+    updateAdaptiveCard();
+
+}, []);
+
   React.useEffect(() => {
     if (t) {
       card = getInitAdaptiveCard(t('TitleText'));
@@ -150,13 +180,18 @@ export const NewMessage = () => {
 
   React.useEffect(
     () => {
-      setCardTitle(card, messageState.title);
-      setCardImageLink(card, messageState.imageLink);
-      setCardSummary(card, messageState.summary);
-      setCardAuthor(card, messageState.author);
-      setCardBtn(card, messageState.buttonTitle, messageState.buttonLink);
-      if (!messageState.title && !messageState.imageLink && !messageState.summary && !messageState.author && !messageState.buttonTitle && !messageState.buttonLink) {
-        card = getInitAdaptiveCard(t('TitleText') ?? '');
+        setCardTitle(card, messageState.title);
+        setCardImageLink(card, messageState.imageLink);
+        setCardTitle(card, messageState.title);
+        setCardDeptTitle(card, messageState.department);
+        setCardVideoPlayerPoster(card, messageState.posterLink);
+        setCardVideoPlayerUrl(card, messageState.videoLink);
+        setCardDeptTitle(card, messageState.department); 
+        setCardSummary(card, messageState.summary);
+        setCardAuthor(card, messageState.author);
+        setCardBtn(card, messageState.buttonTitle, messageState.buttonLink);
+        if (!messageState.title && !messageState.imageLink && !messageState.summary && !messageState.author && !messageState.buttonTitle && !messageState.buttonLink) {
+            card = getInitAdaptiveCard(t('TitleText') ?? '', selectedTemplate);
         setDefaultCard(card);
       }
       updateAdaptiveCard();
@@ -211,8 +246,11 @@ export const NewMessage = () => {
         setMessageState({
           ...messageState,
           id: draftMessageDetail.id,
-          title: draftMessageDetail.title,
-          imageLink: draftMessageDetail.imageLink,
+            title: draftMessageDetail.title,
+            department: draftMessageDetail.department,
+            imageLink: draftMessageDetail.imageLink,
+            posterLink: draftMessageDetail.posterLink, 
+            videoLink: draftMessageDetail.videoLink, 
           summary: draftMessageDetail.summary,
           author: draftMessageDetail.author,
           buttonTitle: draftMessageDetail.buttonTitle,
@@ -224,17 +262,38 @@ export const NewMessage = () => {
         });
 
         setCardTitle(card, draftMessageDetail.title);
+        setCardDeptTitle(card, draftMessageDetail.department);
         setCardImageLink(card, draftMessageDetail.imageLink);
+        setCardVideoPlayerPoster(card, draftMessageDetail.posterLink);
+        setCardVideoPlayerUrl(card, draftMessageDetail.videoLink);
+        setCardDeptTitle(card, draftMessageDetail.department); 
         setCardSummary(card, draftMessageDetail.summary);
         setCardAuthor(card, draftMessageDetail.author);
-        setCardBtn(card, draftMessageDetail.buttonTitle, draftMessageDetail.buttonLink);
+          setCardBtn(card, draftMessageDetail.buttonTitle, draftMessageDetail.buttonLink);
+
 
         updateAdaptiveCard();
       });
     } catch (error) {
       return error;
     }
-  };
+    };
+
+
+const templateSelectionChange = (ev: any, data: RadioGroupOnChangeData) => {
+    let input = data.value as keyof typeof TemplateSelection;
+    setSelectedTemplate(TemplateSelection[input]);
+    var template = new ACData.Template(getInitAdaptiveCard("Title", input));
+    card = template.expand({
+        $root: {
+
+
+        }
+    });
+    setDefaultCard(card);
+    updateAdaptiveCard();
+};
+
 
   const setDefaultCard = (card: any) => {
     const titleAsString = t('TitleText');
@@ -252,26 +311,27 @@ export const NewMessage = () => {
   const updateAdaptiveCard = () => {
     var adaptiveCard = new AdaptiveCards.AdaptiveCard();
     adaptiveCard.parse(card);
-    const renderCard = adaptiveCard.render();
-    if (renderCard && pageSelection === CurrentPageSelection.CardCreation) {
-      document.getElementsByClassName('card-area-1')[0].innerHTML = '';
-      document.getElementsByClassName('card-area-1')[0].appendChild(renderCard);
-      setCardAreaBorderClass('card-area-border');
-    } else if (renderCard && pageSelection === CurrentPageSelection.AudienceSelection) {
-      document.getElementsByClassName('card-area-2')[0].innerHTML = '';
-      document.getElementsByClassName('card-area-2')[0].appendChild(renderCard);
-      setCardAreaBorderClass('card-area-border');
-    }
+      const renderCard = adaptiveCard.render();
+      
+      if (renderCard && pageSelection === CurrentPageSelection.CardCreation) {
+          document.getElementsByClassName('card-area-1')[0].innerHTML = '';
+          document.getElementsByClassName('card-area-1')[0].appendChild(renderCard);
+          setCardAreaBorderClass('card-area-border');
+      } else if (renderCard && pageSelection === CurrentPageSelection.AudienceSelection) {
+          document.getElementsByClassName('card-area-2')[0].innerHTML = '';
+          document.getElementsByClassName('card-area-2')[0].appendChild(renderCard);
+          setCardAreaBorderClass('card-area-border');
+      } else if (renderCard && pageSelection === CurrentPageSelection.TemplateCreation) {
+        document.getElementsByClassName('card-area-3')[0].innerHTML = '';
+        document.getElementsByClassName('card-area-3')[0].appendChild(renderCard);
+        setCardAreaBorderClass('card-area-border');
+      }
     adaptiveCard.onExecuteAction = function (action: any) {
       window.open(action.url, '_blank');
     };
   };
 
-  const handleUploadClick = (event: any) => {
-    if (fileInput.current) {
-      fileInput.current.click();
-    }
-  };
+
 
   const checkValidSizeOfImage = (resizedImageAsBase64: string) => {
     var stringLength = resizedImageAsBase64.length - 'data:image/png;base64,'.length;
@@ -280,58 +340,96 @@ export const NewMessage = () => {
 
     if (sizeInKb <= 1024) return true;
     else return false;
-  };
+    };
 
-  const handleImageSelection = () => {
-    const file = fileInput.current?.files[0];
 
-    if (file) {
-      const fileType = file['type'];
-      const { type: mimeType } = file;
-
-      if (!validImageTypes.includes(fileType)) {
-        setImageUploadErrorMessage(t('ErrorImageTypesMessage'));
-        return;
-      }
-
-      setImageFileName(file['name']);
-      setImageUploadErrorMessage('');
-
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-      fileReader.onload = () => {
-        var image = new Image();
-        image.src = fileReader.result as string;
-        var resizedImageAsBase64 = fileReader.result as string;
-
-        image.onload = function (e: any) {
-          const MAX_WIDTH = 1024;
-
-          if (image.width > MAX_WIDTH) {
-            const canvas = document.createElement('canvas');
-            canvas.width = MAX_WIDTH;
-            canvas.height = ~~(image.height * (MAX_WIDTH / image.width));
-            const context = canvas.getContext('2d', { alpha: false });
-            if (!context) {
-              return;
-            }
-            context.drawImage(image, 0, 0, canvas.width, canvas.height);
-            resizedImageAsBase64 = canvas.toDataURL(mimeType);
-          }
-        };
-
-        if (!checkValidSizeOfImage(resizedImageAsBase64)) {
-          setImageUploadErrorMessage(t('ErrorImageSizeMessage'));
-          return;
+    const handleUploadClick = (event: any) => {
+        if (fileInput.current) {
+            fileInput.current.click();
         }
-
-        setCardImageLink(card, resizedImageAsBase64);
-        setMessageState({ ...messageState, imageLink: resizedImageAsBase64 });
-
-        updateAdaptiveCard();
-      };
+    };
+    const handlePosterUploadClick = (event: any) => {
+        if (posterFileInput.current) {
+            posterFileInput.current.click();
+        }
     }
-  };
+    const handlePosterSelection = () => {
+        const file = posterFileInput.current?.files[0];
+         imageselection(file,"poster");
+       
+
+    }
+  const handleImageSelection = () => {
+      const file = fileInput.current?.files[0];
+      
+      imageselection(file,"image");
+     
+
+ 
+    };
+
+    const imageselection = (file: any, field: string ) : any => {
+
+        if (file) {
+            const fileType = file['type'];
+            const { type: mimeType } = file;
+            
+            if (!validImageTypes.includes(fileType)) {
+                setImageUploadErrorMessage(t('ErrorImageTypesMessage'));
+                return;
+            }
+
+            
+
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
+            fileReader.onload = () => {
+                
+                var image = new Image();
+                image.src = fileReader.result as string;
+                var resizedImageAsBase64 = fileReader.result as string;
+                
+                
+                image.onload = function (e: any) {
+                    const MAX_WIDTH = 1024;
+
+                    if (image.width > MAX_WIDTH) {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = ~~(image.height * (MAX_WIDTH / image.width));
+                        const context = canvas.getContext('2d', { alpha: false });
+                        if (!context) {
+                            return;
+                        }
+                        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                        resizedImageAsBase64 = canvas.toDataURL(mimeType);
+                    }
+                };
+
+                if (!checkValidSizeOfImage(resizedImageAsBase64)) {
+                    setImageUploadErrorMessage(t('ErrorImageSizeMessage'));
+                    return;
+                }
+
+                if (resizedImageAsBase64 && field==='image') {
+                    setImageFileName(file['name']);
+                    setImageUploadErrorMessage('');
+                    setCardImageLink(card, resizedImageAsBase64);
+                    setMessageState({ ...messageState, imageLink: resizedImageAsBase64 });
+                } else if (resizedImageAsBase64 && field === 'poster') {
+                        setPosterFileName(file['name']);
+                        setImageUploadErrorMessage('');
+                        setCardVideoPlayerPoster(card, resizedImageAsBase64);
+                    setMessageState({
+                        ...messageState, posterLink: resizedImageAsBase64
+                    });
+                    }
+
+
+                updateAdaptiveCard();
+            };     
+        }
+    }
 
   const isSaveBtnDisabled = () => {
     const msg_page_conditions = messageState.title !== '' && imageUploadErrorMessage === '' && btnLinkErrorMessage === '';
@@ -376,7 +474,8 @@ export const NewMessage = () => {
     }
 
     const finalMessage = {
-      ...messageState,
+        ...messageState,
+        template: selectedTemplate, 
       teams: finalSelectedTeams,
       rosters: finalSelectedRosters,
       groups: finalSelectedGroups,
@@ -422,14 +521,36 @@ export const NewMessage = () => {
     }
   };
 
-  const onNext = (event: any) => {
-    setPageSelection(CurrentPageSelection.AudienceSelection);
+    const onNext = (event: any) => {
+        switch (pageSelection) {
+            case (CurrentPageSelection.TemplateCreation):
+                setPageSelection(CurrentPageSelection.CardCreation);
+                break;
+            case (CurrentPageSelection.CardCreation):
+                setPageSelection(CurrentPageSelection.AudienceSelection)
+                break; 
+            default:
+
+            
+        }
+    
   };
 
-  const onBack = (event: any) => {
-    setPageSelection(CurrentPageSelection.CardCreation);
-    setAllUserAria('none');
-    setGroupsAria('none');
+    const onBack = (event: any) => {
+
+        switch (pageSelection) {
+            case (CurrentPageSelection.CardCreation):
+                setPageSelection(CurrentPageSelection.TemplateCreation);
+                break;
+            case (CurrentPageSelection.AudienceSelection):
+                setPageSelection(CurrentPageSelection.CardCreation);
+                setAllUserAria('none');
+                setGroupsAria('none');
+                break;
+            default:
+
+
+        }
   };
 
   const onTitleChanged = (event: any) => {
@@ -441,7 +562,13 @@ export const NewMessage = () => {
     setCardTitle(card, event.target.value);
     setMessageState({ ...messageState, title: event.target.value });
     updateAdaptiveCard();
-  };
+    };
+
+    const onDeptChanged = (event: any) => {
+        setCardDeptTitle(card, event.target.value);
+        setMessageState({ ...messageState, department: event.target.value });
+        updateAdaptiveCard();
+    };
 
   const onImageLinkChanged = (event: any) => {
     const urlOrDataUrl = event.target.value;
@@ -469,7 +596,61 @@ export const NewMessage = () => {
       setCardImageLink(card, event.target.value);
       updateAdaptiveCard();
     }
-  };
+    };
+
+
+    const onPosterLinkChanged = (event: any) => {
+        const urlOrDataUrl = event.target.value;
+        let isGoodLink = true;
+        setPosterFileName(urlOrDataUrl);
+
+        if (
+            !(
+                urlOrDataUrl === '' ||
+                urlOrDataUrl.startsWith('https://') ||
+                urlOrDataUrl.startsWith('data:image/png;base64,') ||
+                urlOrDataUrl.startsWith('data:image/jpeg;base64,') ||
+                urlOrDataUrl.startsWith('data:image/gif;base64,')
+            )
+        ) {
+            isGoodLink = false;
+            setImageUploadErrorMessage(t('ErrorURLMessage'));
+        } else {
+            isGoodLink = true;
+            setImageUploadErrorMessage(t(''));
+        }
+
+        if (isGoodLink) {
+            setMessageState({ ...messageState, posterLink: urlOrDataUrl });
+            setCardVideoPlayerPoster(card, event.target.value);
+            updateAdaptiveCard();
+        }
+    };
+
+    const onVideoLinkChanged = (event: any) => {
+        const urlOrDataUrl = event.target.value;
+        let isGoodLink = true;
+        setVideoFileName(urlOrDataUrl);
+
+        if (
+            !(
+                urlOrDataUrl === '' ||
+                urlOrDataUrl.startsWith('https://')
+            )
+        ) {
+            isGoodLink = false;
+            setImageUploadErrorMessage(t('ErrorURLMessage'));
+        } else {
+            isGoodLink = true;
+            setImageUploadErrorMessage(t(''));
+        }
+
+        if (isGoodLink) {
+            setMessageState({ ...messageState, videoLink: urlOrDataUrl });
+            setCardVideoPlayerUrl(card, event.target.value);
+            updateAdaptiveCard();
+        }
+    };
 
   const onSummaryChanged = (event: any) => {
     setCardSummary(card, event.target.value);
@@ -610,7 +791,65 @@ export const NewMessage = () => {
   };
 
   return (
-    <>
+      <>
+          {pageSelection === CurrentPageSelection.TemplateCreation && (
+              <>
+                  <span role='alert' aria-label={t('NewMessageStep2')} />
+                  <div className='adaptive-task-grid'>
+                      <div className='form-area'>
+                          <Label size='large' id='TemplateSelectionGroupLabelId'>
+                              {t('SendHeadingText')}
+                          </Label>
+                          <RadioGroup defaultValue={selectedTemplate} aria-labelledby='TemplateSelectionGroupLabelId' onChange={templateSelectionChange}>
+                              <Radio id='radio1' value={TemplateSelection.Default} label={TemplateSelection.Default} />
+
+                              <Radio id='radio2' value={TemplateSelection.infromational} label={TemplateSelection.infromational} />
+
+                              <Radio id='radio3' value={TemplateSelection.infoVideo} label={TemplateSelection.infoVideo} />
+
+                              <Radio id='radio4' value={TemplateSelection.department} label={TemplateSelection.department} />
+
+                              <Radio id='radio5' value={TemplateSelection.departmentVideo} label={TemplateSelection.departmentVideo} />
+                              <Radio id='radio6' value={TemplateSelection.allIn} label={TemplateSelection.allIn} />
+
+                          </RadioGroup>
+                      </div>
+                      <div className='card-area'>
+                          <div className={cardAreaBorderClass}>
+                              <div className='card-area-3'></div>
+                          </div>
+                      </div>
+                  </div>
+                  <div>
+                      <div className='fixed-footer'>
+                          <div className='footer-action-right'>
+                              <div className='footer-actions-flex'>
+                                  {showMsgDraftingSpinner && (
+                                      <Spinner
+                                          role='alert'
+                                          id='draftingLoader'
+                                          size='small'
+                                          label={t('DraftingMessageLabel')}
+                                          labelPosition='after'
+                                      />
+                                  )}
+                                  <Button
+                                      style={{ marginLeft: '16px' }}
+                                      //disabled={isSaveBtnDisabled() || showMsgDraftingSpinner}
+                                      id='saveBtn'
+                                      onClick={onNext}
+                                      appearance='primary'
+                                  >
+                                      {t('SetAsDraft')};
+                                  </Button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </>
+          )}
+
+      
       {pageSelection === CurrentPageSelection.CardCreation && (
         <>
           <span role='alert' aria-label={t('NewMessageStep1')} />
@@ -626,54 +865,171 @@ export const NewMessage = () => {
                   appearance='filled-darker'
                   value={messageState.title || ''}
                 />
-              </Field>
-              <Field
-                size='large'
-                className={field_styles.styles}
-                label={{
-                  children: (_: unknown, imageInfoProps: LabelProps) => (
-                    <InfoLabel {...imageInfoProps} info={t('ImageSizeInfoContent') || ''}>
-                      {t('ImageURL')}
-                    </InfoLabel>
-                  ),
-                }}
-                validationMessage={imageUploadErrorMessage}
-              >
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr auto',
-                    gridTemplateAreas: 'input-area btn-area',
-                  }}
-                >
-                  <Input
-                    size='large'
-                    style={{ gridColumn: '1' }}
-                    appearance='filled-darker'
-                    value={imageFileName || ''}
-                    placeholder={t('ImageURL')}
-                    onChange={onImageLinkChanged}
-                  />
-                  <Button
-                    style={{ gridColumn: '2', marginLeft: '5px' }}
-                    onClick={handleUploadClick}
-                    size='large'
-                    appearance='secondary'
-                    aria-label={imageFileName ? t('UploadImageSuccessful') : t('UploadImageInfo')}
-                    icon={<ArrowUpload24Regular />}
-                  >
-                    {t('Upload')}
-                  </Button>
-                  <input
-                    type='file'
-                    accept='.jpg, .jpeg, .png, .gif'
-                    style={{ display: 'none' }}
-                    multiple={false}
-                    onChange={handleImageSelection}
-                    ref={fileInput}
-                  />
-                </div>
-              </Field>
+                </Field>
+
+                {
+                    (selectedTemplate === TemplateSelection.infoVideo
+                        || selectedTemplate === TemplateSelection.infromational
+                        || selectedTemplate === TemplateSelection.department
+                    || selectedTemplate === TemplateSelection.allIn)
+                    && (<>
+
+
+
+                        <Field size='large' className={field_styles.styles} label={t('departmentText')} required={false} >
+                            <Input
+                                placeholder={t('PlaceHolderDepartment')}
+                                onChange={onDeptChanged}
+                                autoComplete='off'
+                                size='large'
+                                required={false}
+                                appearance='filled-darker'
+                                value={messageState.department || ''}
+                            />
+                        </Field>
+
+                    </>)
+
+                 }
+                {
+                    (selectedTemplate === TemplateSelection.Default
+                        || selectedTemplate === TemplateSelection.infromational
+                        || selectedTemplate === TemplateSelection.allIn)
+                    && (<> <Field
+                        size='large'
+                        className={field_styles.styles}
+                        label={{
+                            children: (_: unknown, imageInfoProps: LabelProps) => (
+                                <InfoLabel {...imageInfoProps} info={t('ImageSizeInfoContent') || ''}>
+                                    {t('ImageURL')}
+                                </InfoLabel>
+                            ),
+                        }}
+                                  validati
+                                  ={imageUploadErrorMessage}
+                    >
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr auto',
+                                gridTemplateAreas: 'input-area btn-area',
+                            }}
+                        >
+                            <Input
+                                size='large'
+                                style={{ gridColumn: '1' }}
+                                appearance='filled-darker'
+                                value={imageFileName || ''}
+                                placeholder={t('ImageURL')}
+                                onChange={onImageLinkChanged}
+                            />
+                            <Button
+                                style={{ gridColumn: '2', marginLeft: '5px' }}
+                                onClick={handleUploadClick}
+                                size='large'
+                                appearance='secondary'
+                                aria-label={imageFileName ? t('UploadImageSuccessful') : t('UploadImageInfo')}
+                                icon={<ArrowUpload24Regular />}
+                            >
+                                {t('Upload')}
+                            </Button>
+                            <input
+                                type='file'
+                                accept='.jpg, .jpeg, .png, .gif'
+                                style={{ display: 'none' }}
+                                multiple={false}
+                                onChange={handleImageSelection}
+                                ref={fileInput}
+                            />
+                        </div>
+                    </Field></>)
+                }
+
+                          {
+                    (selectedTemplate === TemplateSelection.infoVideo
+                        || selectedTemplate === TemplateSelection.departmentVideo
+                        || selectedTemplate === TemplateSelection.allIn)
+                    && (<> <Field
+                        size='large'
+                        className={field_styles.styles}
+                        label={{
+                            children: (_: unknown, imageInfoProps: LabelProps) => (
+                                <InfoLabel {...imageInfoProps} info={t('PosterSizeInfoContent') || ''}>
+                                    {t('posterURL')}
+                                </InfoLabel>
+                            ),
+                                  }}
+                             validationMessage={imageUploadErrorMessage}
+                       
+                    >
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr auto',
+                                gridTemplateAreas: 'input-area btn-area',
+                            }}
+                        >
+                            <Input
+                                size='large'
+                                style={{ gridColumn: '1' }}
+                                          appearance='filled-darker'
+                                          value={posterFileName || ''}
+                                placeholder={t('VideoURL')}
+                                onChange={onPosterLinkChanged}
+                            />
+                            <Button
+                                style={{ gridColumn: '2', marginLeft: '5px' }}
+                                onClick={handlePosterUploadClick}
+                                size='large'
+                                appearance='secondary'
+                                aria-label={posterFileName ? t('UploadImageSuccessful') : t('UploadImageInfo')}
+                                icon={<ArrowUpload24Regular />}
+                            >
+                                {t('Upload')}
+                            </Button>
+                            <input
+                                type='file'
+                                accept='.jpg, .jpeg, .png, .gif'
+                                style={{ display: 'none' }}
+                                multiple={false}
+                                onChange={handlePosterSelection}
+                                ref={posterFileInput}
+                            />
+                        </div>
+                              </Field>
+                                <Field
+                                    size='large'
+                                    className={field_styles.styles}
+                                    label={{
+                                        children: (_: unknown, imageInfoProps: LabelProps) => (
+                                            <InfoLabel {...imageInfoProps} info={t('VideoSizeInfoContent') || ''}>
+                                                {t('videoURL')}
+                                            </InfoLabel>
+                                        ),
+                                    }}
+
+                                >
+                                    <div
+                                        style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: '1fr auto',
+                                            gridTemplateAreas: 'input-area btn-area',
+                                        }}
+                                    >
+                                        <Input
+                                            size='large'
+                                            style={{ gridColumn: '1' }}
+                                              appearance='filled-darker'
+                                              value={videoFileName || ''}
+                                              placeholder={t('VideoURL')}
+                                              onChange={onVideoLinkChanged}
+                                        />
+                                    </div>
+
+                                </Field>
+                              </>)
+                }
+             
               <Field size='large' className={field_styles.styles} label={t('Summary')}>
                 <Textarea
                   size='large'
@@ -721,12 +1077,32 @@ export const NewMessage = () => {
               </div>
             </div>
           </div>
-          <div className='fixed-footer'>
-            <div className='footer-action-right'>
-              <Button disabled={isNextBtnDisabled()} id='saveBtn' onClick={onNext} appearance='primary'>
-                {t('Next')}
-              </Button>
-            </div>
+                  <div className='fixed-footer'>
+                      <div className='footer-action-right'>
+                          <div className='footer-actions-flex'>
+                              {showMsgDraftingSpinner && (
+                                  <Spinner
+                                      role='alert'
+                                      id='draftingLoader'
+                                      size='small'
+                                      label={t('DraftingMessageLabel')}
+                                      labelPosition='after'
+                                  />
+                              )}
+                              <Button id='backBtn' style={{ marginLeft: '16px' }} onClick={onBack} disabled={showMsgDraftingSpinner} appearance='secondary'>
+                                  {t('Back')}
+                              </Button>
+                              <Button
+                                  style={{ marginLeft: '16px' }}
+                                  disabled={isNextBtnDisabled() || showMsgDraftingSpinner}
+                                  id='saveBtn'
+                                  onClick={onNext}
+                                  appearance='primary'
+                              >
+                                  {t('Next')}
+                              </Button>
+                          </div>
+                      </div>
           </div>
         </>
       )}

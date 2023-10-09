@@ -59,6 +59,15 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories
         /// <returns>All data entities.</returns>
         public Task<IEnumerable<T>> GetWithFilterAsync(string filter, string partition = null);
 
+
+        /// <summary>
+        /// Get Notification based on Column filter
+        /// </summary>
+        /// <param name="colName"></param>
+        /// <param name="rowVal"></param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<IEnumerable<T>> GetNotificationByColumnFilter(string colName, string rowVal);
+
         /// <summary>
         /// Get all data entities from the table storage in a partition.
         /// </summary>

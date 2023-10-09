@@ -20,8 +20,12 @@ import {
   sentMessages,
   teamsData,
   verifyGroup,
+  filteredMessages,
+  updateSearchQuery
+
 } from "./messagesSlice";
-import { store } from "./store";
+import { store, RootState, useAppSelector } from "./store";
+import { createSelector } from 'reselect';
 
 type Notification = {
   createdDateTime: string;
@@ -33,9 +37,34 @@ type Notification = {
   sendingDuration: string;
   succeeded: number;
   throttled: number;
-  title: string;
+    title: string;
+    seen: number;
+    like: number;
+    heart: number;
+    surprise: number;
+    laugh: number;
   totalMessageCount: number;
-  createdBy: string;
+    createdBy: string;
+}; 
+
+const fetchSentMessages = (state: RootState) => state.messages.sentMessages;
+const fetchSearchQuery = (state: RootState) => state.messages.searchQuery;
+
+const selectFilteredMessages = createSelector([fetchSentMessages, fetchSearchQuery], (messages, searchQuery) => {
+
+        return messages.payload.filter((message) =>
+            JSON.stringify(message).includes(searchQuery.payload)
+        );
+    });
+
+export const SearchQueryAction = (dispatch: typeof store.dispatch, searchQuery: string) => {
+    dispatch(updateSearchQuery({ type:"FETCH_SEARCH_QUERY", searchQuery }));
+};
+
+export const FilteredMessagesAction = (dispatch: typeof store.dispatch) => {
+    const fetchFilteredMessages = useAppSelector(selectFilteredMessages);
+    dispatch(filteredMessages({ type: "FETCH_FILTERED_MESSAGES", fetchFilteredMessages })); 
+
 };
 
 export const SelectedMessageAction = (dispatch: typeof store.dispatch, payload: any) => {

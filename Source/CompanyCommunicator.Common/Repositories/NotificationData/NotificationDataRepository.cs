@@ -56,7 +56,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
         /// <inheritdoc/>
         public async Task<IEnumerable<NotificationDataEntity>> GetMostRecentSentNotificationsAsync()
         {
-            var result = await this.GetAllAsync(NotificationDataTableNames.SentNotificationsPartition, 25);
+            var result = await this.GetAllAsync(NotificationDataTableNames.SentNotificationsPartition, 5);
 
             return result;
         }
@@ -80,8 +80,12 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
                     RowKey = newSentNotificationId,
                     Id = newSentNotificationId,
                     Title = draftNotificationEntity.Title,
+                    Department= draftNotificationEntity.Department,
                     ImageLink = draftNotificationEntity.ImageLink,
                     ImageBase64BlobName = draftNotificationEntity.ImageBase64BlobName,
+                    PosterBase64BlobName = draftNotificationEntity.PosterBase64BlobName,
+                    PosterLink = draftNotificationEntity.PosterLink,
+                    VideoLink = draftNotificationEntity.VideoLink,
                     Summary = draftNotificationEntity.Summary,
                     Author = draftNotificationEntity.Author,
                     ButtonTitle = draftNotificationEntity.ButtonTitle,
@@ -98,6 +102,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
                     Succeeded = 0,
                     Failed = 0,
                     Throttled = 0,
+                    Seen = draftNotificationEntity.Seen, 
+                    Like = draftNotificationEntity.Like,
+                    Heart = draftNotificationEntity.Heart,
+                    Surprise = draftNotificationEntity.Surprise,
+                    Laugh = draftNotificationEntity.Laugh,
                     TotalMessageCount = draftNotificationEntity.TotalMessageCount,
                     SendingStartedDate = DateTime.UtcNow,
                     Status = NotificationStatus.Queued.ToString(),
