@@ -7,40 +7,146 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
 {
     using System;
     using System.Collections.Generic;
+    using System.Security.Cryptography;
     using System.Text.Encodings.Web;
     using System.Web;
     using AdaptiveCards;
+    using AdaptiveCards.Rendering;
     using Microsoft.Bot.Schema;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.NotificationData;
+    using static Microsoft.Graph.Constants;
+
 
     /// <summary>
     /// Adaptive Card Creator service.
     /// </summary>
     public class AdaptiveCardCreator
     {
+
+
+
         /// <summary>
         /// Creates an adaptive card.
         /// </summary>
         /// <param name="notificationDataEntity">Notification data entity.</param>
         /// <returns>An adaptive card.</returns>
-        public virtual AdaptiveCard CreateAdaptiveCard(NotificationDataEntity notificationDataEntity)
+        /// 
+        public virtual AdaptiveCard CreateAdaptiveCard(NotificationDataEntity notificationDataEntity, DefaultsDataEntity defaults)
         {
-            return this.CreateAdaptiveCard(
-               title: notificationDataEntity.Title,
-               imageUrl: notificationDataEntity.ImageLink,
-               summary: notificationDataEntity.Summary,
-               author: notificationDataEntity.Author,
-               buttonTitle: notificationDataEntity.ButtonTitle,
-               buttonUrl: notificationDataEntity.ButtonLink,
-               notificationId: notificationDataEntity.Id,
-               department: notificationDataEntity.Department,
-               posterLink: notificationDataEntity.PosterLink,
-               videoLink: notificationDataEntity.VideoLink,
-               template: notificationDataEntity.Template
+            switch (notificationDataEntity.Template)
+            {
+                case AdaptiveCardTemplates.Default:
+                default:
+                    {
+                        return this.CreateAdaptiveCard(
+                            title: notificationDataEntity.Title,
+                            imageUrl: notificationDataEntity.ImageLink,
+                            summary: notificationDataEntity.Summary,
+                            author: notificationDataEntity.Author,
+                            buttonTitle: notificationDataEntity.ButtonTitle,
+                            buttonUrl: notificationDataEntity.ButtonLink,
+                            notificationId: notificationDataEntity.Id,
+                            department: notificationDataEntity.Department,
+                            posterLink: notificationDataEntity.PosterLink,
+                            videoLink: notificationDataEntity.VideoLink,
+                            template: notificationDataEntity.Template,
+                            logo: true,
+                            banner: false,
+                            align: AdaptiveHorizontalAlignment.Left,
+                            defaults: defaults
+                         );
+                    }
+                case AdaptiveCardTemplates.video:
+                    {
+                        return this.CreateAdaptiveCard(
+                            title: notificationDataEntity.Title,
+                            imageUrl: notificationDataEntity.ImageLink,
+                            summary: notificationDataEntity.Summary,
+                            author: notificationDataEntity.Author,
+                            buttonTitle: notificationDataEntity.ButtonTitle,
+                            buttonUrl: notificationDataEntity.ButtonLink,
+                            notificationId: notificationDataEntity.Id,
+                            department: notificationDataEntity.Department,
+                            posterLink: notificationDataEntity.PosterLink,
+                            videoLink: notificationDataEntity.VideoLink,
+                            template: notificationDataEntity.Template,
+                            logo: false,
+                            banner: false,
+                            align: AdaptiveHorizontalAlignment.Left,
+                            defaults: defaults
+                         );
+                    }
+                case AdaptiveCardTemplates.Default_ar:
+                    {
+                        return this.CreateAdaptiveCard(
+                            title: notificationDataEntity.Title,
+                            imageUrl: notificationDataEntity.ImageLink,
+                            summary: notificationDataEntity.Summary,
+                            author: notificationDataEntity.Author,
+                            buttonTitle: notificationDataEntity.ButtonTitle,
+                            buttonUrl: notificationDataEntity.ButtonLink,
+                            notificationId: notificationDataEntity.Id,
+                            department: notificationDataEntity.Department,
+                            posterLink: notificationDataEntity.PosterLink,
+                            videoLink: notificationDataEntity.VideoLink,
+                            template: notificationDataEntity.Template,
+                            logo: true,
+                            banner: false,
+                            align: AdaptiveHorizontalAlignment.Right,
+                            defaults: defaults
+                         );
+                    }
+                case AdaptiveCardTemplates.infromational:
+                case AdaptiveCardTemplates.infoVideo:
+                case AdaptiveCardTemplates.department:
+                case AdaptiveCardTemplates.departmentVideo:
+                    {
+                        return this.CreateAdaptiveCard(
+                            title: notificationDataEntity.Title,
+                            imageUrl: notificationDataEntity.ImageLink,
+                            summary: notificationDataEntity.Summary,
+                            author: notificationDataEntity.Author,
+                            buttonTitle: notificationDataEntity.ButtonTitle,
+                            buttonUrl: notificationDataEntity.ButtonLink,
+                            notificationId: notificationDataEntity.Id,
+                            department: notificationDataEntity.Department,
+                            posterLink: notificationDataEntity.PosterLink,
+                            videoLink: notificationDataEntity.VideoLink,
+                            template: notificationDataEntity.Template,
+                            logo: true,
+                            banner: true,
+                            align: AdaptiveHorizontalAlignment.Left,
+                            defaults: defaults
+                            );
+                    }
 
-                );
-             
+                case AdaptiveCardTemplates.infromational_ar:
+                case AdaptiveCardTemplates.infoVideo_ar:
+                case AdaptiveCardTemplates.department_ar:
+                case AdaptiveCardTemplates.departmentVideo_ar:
+                    {
+                        return this.CreateAdaptiveCard(
+                            title: notificationDataEntity.Title,
+                            imageUrl: notificationDataEntity.ImageLink,
+                            summary: notificationDataEntity.Summary,
+                            author: notificationDataEntity.Author,
+                            buttonTitle: notificationDataEntity.ButtonTitle,
+                            buttonUrl: notificationDataEntity.ButtonLink,
+                            notificationId: notificationDataEntity.Id,
+                            department: notificationDataEntity.Department,
+                            posterLink: notificationDataEntity.PosterLink,
+                            videoLink: notificationDataEntity.VideoLink,
+                            template: notificationDataEntity.Template,
+                            logo: true,
+                            banner: true,
+                            align: AdaptiveHorizontalAlignment.Right,
+                            defaults: defaults
+                            );
+                    }
+
+
+            }
 
         }
 
@@ -73,9 +179,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
         /// <param name="buttonUrl">The adaptive card's button url value.</param>
         /// <param name="notificationId">The notification id.</param>
         /// <param name="template"></param>
+        /// <param name="align"></param>
+        /// <param name="defaults"></param>
+        /// <param name=""></param>
         /// <param name="department"></param>
         /// <param name="posterLink"></param>
         /// <param name="videoLink"></param>
+        /// <param name="logo"></param>
+        /// <param name="banner"></param>
         /// <returns>The created adaptive card instance.</returns>
         public AdaptiveCard CreateAdaptiveCard(
             string title,
@@ -85,30 +196,79 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
             string buttonTitle,
             string buttonUrl,
             string notificationId,
-            string department ,
-            string posterLink, 
+            string department,
+            string posterLink,
             string videoLink,
-            string template
+            bool logo,
+            bool banner,
+            string template,
+            AdaptiveHorizontalAlignment align,
+            DefaultsDataEntity defaults
             )
         {
 
-                
 
-            string TeamsInternalAppID = "148a66bb-e83d-425a-927d-09f4299a9274"; 
-
-            var version = new AdaptiveSchemaVersion(1, 0);
+            var version = new AdaptiveSchemaVersion(1, 5);
             AdaptiveCard card = new AdaptiveCard(version);
 
-            if (!string.IsNullOrEmpty(department))
+            if (logo)
             {
-                card.Body.Add(new AdaptiveTextBlock()
+                if (template == AdaptiveCardTemplates.uae50)
                 {
-                    Text = department,
-                    Size = AdaptiveTextSize.Medium,
-                    Weight = AdaptiveTextWeight.Bolder,
-                    Wrap = true,
-                    HorizontalAlignment =AdaptiveHorizontalAlignment.Center,
-                });
+                    var columnSet = new AdaptiveColumnSet()
+                    {
+                        Columns = new List<AdaptiveColumn>() {
+                             new AdaptiveColumn()
+                             {
+                                 Width = AdaptiveColumnWidth.Stretch,
+
+                                 Items = new List<AdaptiveElement>()
+                                 {
+                                    new AdaptiveTextBlock()
+                                        {
+                                            Text = "خمسون عام على الاتحاد",
+                                            Size = AdaptiveTextSize.Medium,
+                                            Weight = AdaptiveTextWeight.Bolder,
+                                            Wrap = true,
+                                        },
+                                 },
+                             },
+                             new AdaptiveColumn()
+                             {
+                                 Width = AdaptiveColumnWidth.Stretch,
+
+                                 Items = new List<AdaptiveElement>()
+                                 {
+                                     new AdaptiveImage()
+                                        {
+                                            Url = new Uri(Constants.BaseUrl + "/image/Logo.png", UriKind.RelativeOrAbsolute),
+                                            Spacing = AdaptiveSpacing.Default,
+                                            Size = AdaptiveImageSize.Large,
+                                            HorizontalAlignment = AdaptiveHorizontalAlignment.Center,
+                                            AltText = string.Empty,
+                                        },
+                                 },
+                             },
+                             },
+                    };
+                    card.Body.Add(columnSet);
+                }
+                else
+                {
+                    var img = new AdaptiveImageWithLongUrl()
+                    {
+                        LongUrl = defaults.LogoLink,
+                        Spacing = AdaptiveSpacing.Default,
+                        Size = AdaptiveImageSize.Large,
+                        HorizontalAlignment = AdaptiveHorizontalAlignment.Center,
+                        AltText = string.Empty,
+                    };
+
+                    // Image enlarge support for Teams web/desktop client.
+                    img.AdditionalProperties.Add("msteams", new { AllowExpand = true });
+
+                    card.Body.Add(img);
+                }
             }
 
             card.Body.Add(new AdaptiveTextBlock()
@@ -119,6 +279,17 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
                 Wrap = true,
             });
 
+            if (!string.IsNullOrEmpty(department))
+            {
+                card.Body.Add(new AdaptiveTextBlock()
+                {
+                    Text = department,
+                    Size = AdaptiveTextSize.Medium,
+                    Weight = AdaptiveTextWeight.Bolder,
+                    Wrap = true,
+                    HorizontalAlignment = AdaptiveHorizontalAlignment.Center,
+                });
+            }
 
             if (!string.IsNullOrWhiteSpace(imageUrl))
             {
@@ -140,36 +311,32 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
 
             if (!string.IsNullOrWhiteSpace(videoLink) && !string.IsNullOrWhiteSpace(posterLink))
             {
-                string videoURI = $"https://teams.microsoft.com/l/stage/{TeamsInternalAppID}/0?context={this.UrlEncoder("Learn Together - Developing apps for Microsoft Teams", "https://www.youtube.com/embed/xxkCJKpU3vA", "https://www.youtube.com/watch?v=xxkCJKpU3vA")}";
+
+
+
+                string videoURI = videoLink;
                 var video = new AdaptiveImageWithLongUrl
                 {
                     LongUrl = posterLink,
                     Size = AdaptiveImageSize.Stretch,
-                    HorizontalAlignment=AdaptiveHorizontalAlignment.Center,
+                    HorizontalAlignment = AdaptiveHorizontalAlignment.Center,
                     SelectAction = new AdaptiveOpenUrlAction()
                     {
-
-                        Url = new Uri(videoURI),
-
+                        Url = new Uri(videoURI, UriKind.RelativeOrAbsolute),
                     },
 
 
                 };
                 // Image enlarge support for Teams web/desktop client.
                 video.AdditionalProperties.Add("msteams", new { AllowExpand = true });
-                video.SelectAction.AdditionalProperties.Add("msteams", new { AllowExpand = true });
 
                 card.Body.Add(video);
-
-            }
-
-            if (!string.IsNullOrWhiteSpace(summary))
-            {
-                card.Body.Add(new AdaptiveTextBlock()
+                card.Actions.Add(new AdaptiveOpenUrlAction()
                 {
-                    Text = summary,
-                    Wrap = true,
+                    Title = "Play video",
+                    Url = new Uri(videoURI, UriKind.RelativeOrAbsolute),
                 });
+
             }
 
             if (!string.IsNullOrWhiteSpace(author))
@@ -180,6 +347,16 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
                     Size = AdaptiveTextSize.Small,
                     Weight = AdaptiveTextWeight.Lighter,
                     Wrap = true,
+                    HorizontalAlignment = align,
+                });
+            }
+            if (!string.IsNullOrWhiteSpace(summary))
+            {
+                card.Body.Add(new AdaptiveTextBlock()
+                {
+                    Text = summary,
+                    Wrap = true,
+                    HorizontalAlignment = align,
                 });
             }
 
@@ -193,41 +370,27 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard
                 });
             }
 
-            if(template != "departmentVideo" || template !="Deafult")
+            if (banner)
             {
-                var columnSet = new AdaptiveColumnSet()
+
+
+                var img = new AdaptiveImageWithLongUrl()
                 {
-                    Columns = new List<AdaptiveColumn>() {
-                    new AdaptiveColumn()
-                    {
-                        Width = AdaptiveColumnWidth.Stretch,
+                    LongUrl = defaults.BannerLink,
+                    Spacing = AdaptiveSpacing.Default,
+                    Size = AdaptiveImageSize.Stretch,
+                    HorizontalAlignment = AdaptiveHorizontalAlignment.Center,
+                    AltText = string.Empty,
+                };
 
-                        Items = new List<AdaptiveElement>()
-                        {
-                            new AdaptiveImage()
-                            {
-                                Url = new Uri(Constants.BaseUrl + "/image/Customs.png", UriKind.RelativeOrAbsolute),
-                                Size = AdaptiveImageSize.Stretch,
-                            },
-                        },
-                    },
-                    new AdaptiveColumn()
-                    {
-                        Width = AdaptiveColumnWidth.Stretch,
+                // Image enlarge support for Teams web/desktop client.
+                img.AdditionalProperties.Add("msteams", new { AllowExpand = true });
 
-                        Items = new List<AdaptiveElement>()
-                        {
-                            new AdaptiveImage()
-                            {
-                                Url = new Uri(Constants.BaseUrl + "/image/UAE.png", UriKind.RelativeOrAbsolute),
-                                Size = AdaptiveImageSize.Stretch,
-                            },
-                        },
-                    },
-                    },
-                }; 
-                card.Body.Add(columnSet);
+
+                card.Body.Add(img);
             }
+
+
 
             // Full width Adaptive card.
             card.AdditionalProperties.Add("msteams", new { width = "full" });

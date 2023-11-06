@@ -37,7 +37,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Models
         /// </summary>
         public string PosterLink { get; set; }
 
-
         /// <summary>
         /// Gets or sets the Video Link value.
         /// </summary>
@@ -47,7 +46,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Models
         /// Gets or sets the blob name for the image in base64 format.
         /// </summary>
         public string ImageBase64BlobName { get; set; }
-
 
         /// <summary>
         /// Gets or sets the blob name for the poster in base64 format.
@@ -78,9 +76,16 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Models
         /// Gets or sets the Template selection value value.
         /// </summary>
         public string Template { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Json string of the card value value.
+        /// </summary>
+        public string Card { get; set; }
+
         /// <summary>
         /// Gets or sets the Created DateTime value.
         /// </summary>
+        ///
         public DateTime CreatedDateTime { get; set; }
     }
 }

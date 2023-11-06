@@ -1,22 +1,22 @@
 {
-  "$schema": "https://raw.githubusercontent.com/OfficeDev/microsoft-teams-app-schema/preview/DevPreview/MicrosoftTeams.schema.json",
-  "manifestVersion": "devPreview",
-  "version": "1.0.2",
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "1.0.4",
   "id": "148a66bb-e83d-425a-927d-09f4299a9274",
   "packageName": "com.microsoft.teams.companycommunicator",
   "developer": {
     "name": "blueridgeit",
-    "websiteUrl": "http://www.blueridgeit.com",
-    "privacyUrl": "http://www.blueridgeit.com",
-    "termsOfUseUrl": "http://www.blueridgeit.com"
+    "websiteUrl": "https://www.blueridgeit.com",
+    "privacyUrl": "https://www.blueridgeit.com",
+    "termsOfUseUrl": "https://www.blueridgeit.com"
   },
   "icons": {
     "color": "color.png",
     "outline": "outline.png"
   },
   "name": {
-    "short": "MersalV6",
-    "full": "MersalV6"
+    "short": "MersalV6 User",
+    "full": "MersalV6 User"
   },
   "description": {
     "short": "Broadcast messages to multiple teams and people in one go",
@@ -39,7 +39,8 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "<<appDomain>>"
+    "*.companycommunicator.blueridgeit.com",
+    "*.youtube.com"
   ],
   "authorization": {
     "permissions": {

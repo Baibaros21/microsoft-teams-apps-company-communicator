@@ -39,6 +39,30 @@
         padding: 1rem;
     }
 
+    .cc-icon-button {
+        background-color: transparent;
+        border: solid var(--colorNeutralForegroundInvertedLink) 2px;
+        border: none;
+        height: 100%;
+        width: 100%;
+        padding-bottom: 1.8rem;
+    }
+
+    .cc-icon-button:hover {
+        background-color: transparent;
+    }
+
+    .cc-icon-button:focus-visible {
+        box-sizing: content-box;
+        width: 100%;
+        border: solid var(--colorNeutralForegroundInvertedLink) 2px;
+        padding: 15px 0px 2px 0px;
+    }
+
+    .cc-icon-button-icon {
+        color: var(--colorNeutralForegroundInvertedLink);
+    }
+
     .cc-icon-link {
         color: var(--colorNeutralForegroundInvertedLink);
         cursor: pointer;

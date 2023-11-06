@@ -18,6 +18,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.DraftNotificationPreview
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.TeamData;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.AdaptiveCard;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.CommonBot;
+    using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob;
 
     /// <summary>
     /// Draft notification preview service.
@@ -31,6 +32,9 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.DraftNotificationPreview
         private readonly string botAppId;
         private readonly AdaptiveCardCreator adaptiveCardCreator;
         private readonly CompanyCommunicatorBotAdapter companyCommunicatorBotAdapter;
+        private readonly IBlobStorageProvider blobStorageProvider;
+        private readonly string DEFAULT_LOGO_BLOB_NAME = "DEFAULT_LOGO";
+        private readonly string DEFAULT_BANNER_BLOB_NAME = "DEFAULT_BANNER";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DraftNotificationPreviewService"/> class.
@@ -41,7 +45,9 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.DraftNotificationPreview
         public DraftNotificationPreviewService(
             IOptions<BotOptions> botOptions,
             AdaptiveCardCreator adaptiveCardCreator,
-            CompanyCommunicatorBotAdapter companyCommunicatorBotAdapter)
+            CompanyCommunicatorBotAdapter companyCommunicatorBotAdapter,
+            IBlobStorageProvider blobStorageProvider
+            )
         {
             var options = botOptions ?? throw new ArgumentNullException(nameof(botOptions));
             this.botAppId = options.Value.AuthorAppId;
@@ -52,6 +58,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.DraftNotificationPreview
 
             this.adaptiveCardCreator = adaptiveCardCreator ?? throw new ArgumentNullException(nameof(adaptiveCardCreator));
             this.companyCommunicatorBotAdapter = companyCommunicatorBotAdapter ?? throw new ArgumentNullException(nameof(companyCommunicatorBotAdapter));
+            this.blobStorageProvider = blobStorageProvider ?? throw new ArgumentException(nameof(blobStorageProvider));
         }
 
         /// <inheritdoc/>
@@ -128,23 +135,36 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.DraftNotificationPreview
             NotificationDataEntity draftNotificationEntity)
         {
             Console.WriteLine(draftNotificationEntity);
-            var reply = this.CreateReply(draftNotificationEntity);
+            var logoLink = "data:image/jpeg;base64," + await this.blobStorageProvider.DownloadBase64ImageAsync(this.DEFAULT_LOGO_BLOB_NAME);
+            var bannerLink = "data:image/jpeg;base64," + await this.blobStorageProvider.DownloadBase64ImageAsync(this.DEFAULT_BANNER_BLOB_NAME);
+
+            var defaults = new DefaultsDataEntity
+            {
+                BannerFileName = this.DEFAULT_BANNER_BLOB_NAME,
+                BannerLink = bannerLink,
+                LogoFileName = this.DEFAULT_LOGO_BLOB_NAME,
+                LogoLink = logoLink,
+            };
+            var reply = this.CreateReply(draftNotificationEntity, defaults);
             await turnContext.SendActivityAsync(reply);
         }
 
-        private IMessageActivity CreateReply(NotificationDataEntity draftNotificationEntity)
+        private IMessageActivity CreateReply(NotificationDataEntity draftNotificationEntity, DefaultsDataEntity defaults)
         {
-            var adaptiveCard = this.adaptiveCardCreator.CreateAdaptiveCard(draftNotificationEntity);
 
-            var attachment = new Attachment
             {
-                ContentType = AdaptiveCard.ContentType,
-                Content = adaptiveCard,
-            };
+                var adaptiveCard = this.adaptiveCardCreator.CreateAdaptiveCard(draftNotificationEntity, defaults);
 
-            var reply = MessageFactory.Attachment(attachment);
+                var attachment = new Attachment
+                {
+                    ContentType = AdaptiveCard.ContentType,
+                    Content = adaptiveCard,
+                };
 
-            return reply;
+                var reply = MessageFactory.Attachment(attachment);
+
+                return reply;
+            }
         }
     }
 }

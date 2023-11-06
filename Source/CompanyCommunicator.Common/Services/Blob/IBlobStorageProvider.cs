@@ -5,6 +5,7 @@
 
 namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -26,6 +27,13 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
         /// <param name="blobName">Blob name.</param>
         /// <returns>Adaptive card in json format.</returns>
         public Task<string> DownloadAdaptiveCardAsync(string blobName);
+
+        public Task<IEnumerable<CardTemplatedataEntity>> DownloadAllCardTemplatesAsync();
+
+        public Task<string> DownloadCardTemplateAsync(string blobName);
+
+        public Task UploadCardTemplateAsync(string blobName, string adaptiveCard);
+
 
         /// <summary>
         /// Upload an image to blob container.

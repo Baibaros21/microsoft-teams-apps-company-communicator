@@ -43,6 +43,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\components\ModifyDefaultsTask\modifyDefaultsTask.tsx" />
+    <None Remove="ClientApp\src\components\ModifyTemplatesTask\modifyTemplatesTask.tsx" />
     <None Remove="ClientApp\src\components\VideoPlayerTask\videoPlayer.tsx" />
   </ItemGroup>
 

@@ -101,5 +101,19 @@
   "ExportSuccessView": "Export success view loaded",
   "ExportFailureView": "Export failure view loaded",
   "NewMessageStep1": "Message form basic information step",
-  "NewMessageStep2": "Message form audience selection step"
+  "NewMessageStep2": "Message form audience selection step",
+  "SetAsDraft": "Use this template",
+  "departmentText": "Department Name",
+  "PlaceHolderDepartment": "Department Name",
+  "posterURL": "URL of the video poster",
+  "videoURL": "Video URL (must be .mp4)",
+  "modifyDefaults": "Modify default elements",
+  "LogoURL": "URL of the logo",
+  "BannerURL": "URL of the banner",
+  "modifyTemplates": "Modify Templates",
+  "modifyTemplate": "Modify Template",
+  "ModifyAppDefaults": "Modify Application Defaults",
+  "HeaderLogoURL": "URL of the Header's Logo",
+  "ModifyCardDefaults": "Modify the Card Defaults elements",
+  "LogoSizeIfoContent": "Logo dimensions must be: 5 rem x 5 rem"
 }

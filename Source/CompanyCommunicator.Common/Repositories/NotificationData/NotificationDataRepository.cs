@@ -80,7 +80,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
                     RowKey = newSentNotificationId,
                     Id = newSentNotificationId,
                     Title = draftNotificationEntity.Title,
-                    Department= draftNotificationEntity.Department,
+                    Department = draftNotificationEntity.Department,
                     ImageLink = draftNotificationEntity.ImageLink,
                     ImageBase64BlobName = draftNotificationEntity.ImageBase64BlobName,
                     PosterBase64BlobName = draftNotificationEntity.PosterBase64BlobName,
@@ -102,7 +102,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
                     Succeeded = 0,
                     Failed = 0,
                     Throttled = 0,
-                    Seen = draftNotificationEntity.Seen, 
+                    Seen = draftNotificationEntity.Seen,
                     Like = draftNotificationEntity.Like,
                     Heart = draftNotificationEntity.Heart,
                     Surprise = draftNotificationEntity.Surprise,
@@ -110,6 +110,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
                     TotalMessageCount = draftNotificationEntity.TotalMessageCount,
                     SendingStartedDate = DateTime.UtcNow,
                     Status = NotificationStatus.Queued.ToString(),
+                    Template = draftNotificationEntity.Template,
                 };
                 await this.CreateOrUpdateAsync(sentNotificationEntity);
 
@@ -144,6 +145,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
                     ImageLink = notificationEntity.ImageLink,
                     Summary = notificationEntity.Summary,
                     Author = notificationEntity.Author,
+                    Department = notificationEntity.Department,
+                    Card = notificationEntity.Card,
                     ButtonTitle = notificationEntity.ButtonTitle,
                     ButtonLink = notificationEntity.ButtonLink,
                     CreatedBy = createdBy,
@@ -153,12 +156,29 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
                     Groups = notificationEntity.Groups,
                     Rosters = notificationEntity.Rosters,
                     AllUsers = notificationEntity.AllUsers,
+                    PosterLink = notificationEntity.PosterLink,
+                    VideoLink = notificationEntity.VideoLink,
+                    Seen = notificationEntity.Seen,
+                    Like = notificationEntity.Like,
+                    Heart = notificationEntity.Heart,
+                    Surprise = notificationEntity.Surprise,
+                    Laugh = notificationEntity.Laugh,
+                    TotalMessageCount = notificationEntity.TotalMessageCount,
+                    Template=notificationEntity.Template,
                 };
 
                 if (!string.IsNullOrEmpty(notificationEntity.ImageBase64BlobName))
                 {
                     await this.storageProvider.CopyImageBlobAsync(notificationEntity.ImageBase64BlobName, newId);
                     newNotificationEntity.ImageBase64BlobName = newId;
+                }
+
+
+                // Download base64 data from blob convert to base64 string.
+                if (!string.IsNullOrEmpty(notificationEntity.PosterBase64BlobName))
+                {
+                    await this.storageProvider.CopyImageBlobAsync(notificationEntity.PosterBase64BlobName, newId);
+                    newNotificationEntity.PosterBase64BlobName = newId;
                 }
 
                 await this.CreateOrUpdateAsync(newNotificationEntity);

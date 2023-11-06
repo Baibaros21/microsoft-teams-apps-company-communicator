@@ -1,6 +1,6 @@
 ﻿.taskModule {
-    max-width: 80rem;
-
+    width: 100%;
+    height: 100%;
 
     .adaptive-task-grid {
         display: grid;
@@ -20,13 +20,12 @@
     .card-area {
         grid-row: 2;
         padding: 1rem;
-        max-width: 767px;
     }
 
     .big-screen-visible {
         display: none;
     }
-    
+
     .formContainer {
         overflow-y: auto;
         position: absolute;

@@ -9,6 +9,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
+    using Newtonsoft.Json.Linq;
+    using System.Reactive;
     using System.Security.Claims;
     using System.Text;
     using System.Threading.Tasks;
@@ -25,12 +27,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotificationData;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.TeamData;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services;
+    using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.MessageQueues.DataQueue;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.MessageQueues.PrepareToSendQueue;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.MicrosoftGraph;
     using Microsoft.Teams.Apps.CompanyCommunicator.Controllers.Options;
     using Microsoft.Teams.Apps.CompanyCommunicator.Models;
     using Newtonsoft.Json;
+    using System.Text.Json.Nodes;
 
     /// <summary>
     /// Controller for the sent notification data.
@@ -51,7 +55,9 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
         private readonly IAppSettingsService appSettingsService;
         private readonly UserAppOptions userAppOptions;
         private readonly IHttpClientFactory clientFactory;
+        private readonly IBlobStorageProvider blobStorageProvider;
         private readonly ILogger<SentNotificationsController> logger;
+        private readonly ISendingNotificationDataRepository sendingNotificationDataRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SentNotificationsController"/> class.
@@ -69,6 +75,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
         /// <param name="userAppOptions">User app options.</param>
         /// <param name="clientFactory">the http client factory.</param>
         /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="blobStorageProvider">blod storage</param>
         public SentNotificationsController(
             INotificationDataRepository notificationDataRepository,
             ISentNotificationDataRepository sentNotificationDataRepository,
@@ -82,13 +89,15 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
             IAppSettingsService appSettingsService,
             IOptions<UserAppOptions> userAppOptions,
             IHttpClientFactory clientFactory,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            ISendingNotificationDataRepository notificationRepo)
         {
             if (dataQueueMessageOptions is null)
             {
                 throw new ArgumentNullException(nameof(dataQueueMessageOptions));
             }
 
+            this.sendingNotificationDataRepository = notificationRepo ?? throw new ArgumentNullException(nameof(notificationRepo));
             this.notificationDataRepository = notificationDataRepository ?? throw new ArgumentNullException(nameof(notificationDataRepository));
             this.sentNotificationDataRepository = sentNotificationDataRepository ?? throw new ArgumentNullException(nameof(sentNotificationDataRepository));
             this.teamDataRepository = teamDataRepository ?? throw new ArgumentNullException(nameof(teamDataRepository));
@@ -131,6 +140,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
 
             // Ensure the data table needed by the Azure Functions to send the notifications exist in Azure storage.
             await this.sentNotificationDataRepository.EnsureSentNotificationDataTableExistsAsync();
+
+            Console.WriteLine(draftNotification.Card);
+
+            //serliaze the card json string 
+            JObject jsonObject = JObject.Parse(draftNotification.Card);
+            // Save Adaptive Card with data uri into blob storage. Blob name = notification.Id.
+            await this.sendingNotificationDataRepository.SaveAdaptiveCardAsync(newSentNotificationId, jsonObject.ToString());
+
 
             // Update user app id if proactive installation is enabled.
             await this.UpdateUserAppIdAsync();
@@ -222,7 +239,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
 
             var userId = this.HttpContext.User.FindFirstValue(Common.Constants.ClaimTypeUserId);
             var userNotificationDownload = await this.exportDataRepository.GetAsync(userId, id);
-
             var result = new SentNotification
             {
                 Id = notificationEntity.Id,
@@ -231,7 +247,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 ImageLink = notificationEntity.ImageLink,
                 ImageBase64BlobName = notificationEntity.ImageBase64BlobName,
                 PosterLink = notificationEntity.PosterLink,
-                PosterBase64BlobName=notificationEntity.PosterBase64BlobName,
+                PosterBase64BlobName = notificationEntity.PosterBase64BlobName,
                 Summary = notificationEntity.Summary,
                 Author = notificationEntity.Author,
                 ButtonTitle = notificationEntity.ButtonTitle,
@@ -257,6 +273,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 Heart = notificationEntity.Heart,
                 Surpise = notificationEntity.Surprise,
                 Laugh = notificationEntity.Laugh,
+
             };
 
             // In case we have blob name instead of URL to public image.
@@ -265,7 +282,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
             {
                 result.ImageLink = await this.notificationDataRepository.GetImageAsync(result.ImageLink, notificationEntity.ImageBase64BlobName);
             }
-
+            // Download base64 data from blob convert to base64 string.
+            if (!string.IsNullOrEmpty(notificationEntity.PosterBase64BlobName))
+            {
+                result.PosterLink = await this.notificationDataRepository.GetImageAsync(notificationEntity.PosterLink, notificationEntity.PosterBase64BlobName);
+            }
+            var card = await this.sendingNotificationDataRepository.GetAdaptiveCardAsync(notificationEntity.Id);
+            Console.WriteLine(card);
+            result.Card = card;
             return this.Ok(result);
         }
 
@@ -314,6 +338,45 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
             }
 
             return this.Ok();
+        }
+
+        /// <summary>
+        /// Get a sent notification by Id.
+        /// </summary>
+        /// <returns>Required sent notification.</returns>
+        [HttpGet("appid")]
+        public async Task<IActionResult> GetAppIdAsync()
+        {
+
+            // check if we have already synced app id.
+            var appId = await this.appSettingsService.GetUserAppIdAsync();
+            if (!string.IsNullOrWhiteSpace(appId))
+            {
+                return this.Ok(appId);
+            }
+
+            try
+            {
+                // Fetch and store user app id in App Catalog.
+                appId = await this.appCatalogService.GetTeamsAppIdAsync(this.userAppOptions.UserAppExternalId);
+
+                // Graph SDK returns empty id if the app is not found.
+                if (string.IsNullOrEmpty(appId))
+                {
+                    this.logger.LogError($"Failed to find an app in AppCatalog with external Id: {this.userAppOptions.UserAppExternalId}");
+                    return this.NotFound();
+                }
+
+                await this.appSettingsService.SetUserAppIdAsync(appId);
+                return this.Ok(appId);
+            }
+            catch (ServiceException exception)
+            {
+                // Failed to fetch app id.
+                this.logger.LogError(exception, $"Failed to get catalog app id. Error message: {exception.Message}.");
+                return this.NotFound();
+            }
+
         }
 
         private int? GetUnknownCount(NotificationDataEntity notificationEntity)

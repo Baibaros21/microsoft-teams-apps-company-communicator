@@ -39,6 +39,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
         private readonly IAppSettingsService appSettingsService;
         private readonly IStringLocalizer<Strings> localizer;
         private readonly IBlobStorageProvider blobStorageProvider;
+        private readonly ISendingNotificationDataRepository sendingNotificationDataRepository;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DraftNotificationsController"/> class.
@@ -57,8 +59,10 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
             IAppSettingsService appSettingsService,
             IStringLocalizer<Strings> localizer,
             IGroupsService groupsService,
-            IBlobStorageProvider blobStorageProvider)
+            IBlobStorageProvider blobStorageProvider,
+            ISendingNotificationDataRepository notificationRepo)
         {
+            this.sendingNotificationDataRepository = notificationRepo ?? throw new ArgumentNullException(nameof(notificationRepo));
             this.notificationDataRepository = notificationDataRepository ?? throw new ArgumentNullException(nameof(notificationDataRepository));
             this.teamDataRepository = teamDataRepository ?? throw new ArgumentNullException(nameof(teamDataRepository));
             this.draftNotificationPreviewService = draftNotificationPreviewService ?? throw new ArgumentNullException(nameof(draftNotificationPreviewService));
@@ -157,6 +161,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 Department = notification.Department,
                 Title = notification.Title,
                 ImageLink = notification.ImageLink,
+                VideoLink = notification.VideoLink,
+                PosterLink = notification.PosterLink,
                 Summary = notification.Summary,
                 Author = notification.Author,
                 ButtonTitle = notification.ButtonTitle,
@@ -175,6 +181,13 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
             {
                 notificationEntity.ImageLink = await this.notificationDataRepository.SaveImageAsync(notification.Id, notificationEntity.ImageLink);
                 notificationEntity.ImageBase64BlobName = notification.Id;
+            }
+
+            // Download base64 data from blob convert to base64 string.
+            if (!string.IsNullOrEmpty(notificationEntity.PosterBase64BlobName))
+            {
+                notificationEntity.PosterLink = await this.notificationDataRepository.SaveImageAsync(notification.Id, notificationEntity.PosterLink);
+                notificationEntity.PosterBase64BlobName = notification.Id;
             }
 
             await this.notificationDataRepository.CreateOrUpdateAsync(notificationEntity);
@@ -271,7 +284,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 ImageBase64BlobName = notificationEntity.ImageBase64BlobName,
                 Department = notificationEntity.Department,
                 PosterLink = notificationEntity.PosterLink,
-                PosterBase64BlobName=notificationEntity.PosterBase64BlobName,
+                VideoLink = notificationEntity.VideoLink,
+                PosterBase64BlobName = notificationEntity.PosterBase64BlobName,
                 Summary = notificationEntity.Summary,
                 Author = notificationEntity.Author,
                 ButtonTitle = notificationEntity.ButtonTitle,

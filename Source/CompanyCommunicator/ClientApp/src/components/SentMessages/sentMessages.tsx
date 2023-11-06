@@ -96,8 +96,8 @@ export const SentMessages = () => {
             {sentMessages && sentMessages.length > 0 && !loader &&
                 (<>
                 <div className={classes.root}>
-                    <Label htmlFor={"search"}>Search</Label>
-                    <Input onChange={onQueryChange} contentBefore={<Search12Regular />} id={"search"} />
+
+                    <Input onChange={onQueryChange} placeholder="search" contentBefore={<Search12Regular />} id={"search"} />
                 </div>
                 <SentMessageDetail sentMessages={filteredMessages} />
 

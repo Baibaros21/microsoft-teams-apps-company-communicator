@@ -6,6 +6,7 @@
 namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
@@ -45,6 +46,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
         /// blob container name for images in base64 format.
         /// </summary>
         public const string ImagesBlobContainerName = "images";
+
+        /// <summary>
+        /// blob container name for images in base64 format.
+        /// </summary>
+        public const string TemplatesBlobContainerName = "templates";
 
         private readonly IStorageClientFactory storageClientFactory;
 
@@ -161,12 +167,97 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Blob
             }
         }
 
+
+        /// <inheritdoc/>
+        public async Task UploadCardTemplateAsync(string blobName, string adaptiveCard)
+        {
+            try
+            {
+                var blobContainerClient = await this.GetBlobContainer(TemplatesBlobContainerName);
+
+                var blob = blobContainerClient.GetBlobClient(blobName);
+                await blob.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
+
+                using (var stream = new MemoryStream())
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.Write(adaptiveCard);
+                    writer.Flush();
+                    stream.Position = 0;
+                    var blobHttpHeader = new BlobHttpHeaders() { ContentType = "application/json" };
+                    await blob.UploadAsync(stream, blobHttpHeader);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, $"Error while uploading AC to Azure Blob Storage. Blob name : {blobName}, Error details: {ex.Message}");
+                throw;
+            }
+        }
+
         /// <inheritdoc/>
         public async Task<string> DownloadAdaptiveCardAsync(string blobName)
         {
             try
             {
                 var blobContainerClient = await this.GetBlobContainer(SentCardsBlobContainerName);
+                var blob = blobContainerClient.GetBlobClient(blobName);
+
+                using (var stream = new MemoryStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    await blob.DownloadToAsync(stream);
+                    stream.Position = 0;
+                    return reader.ReadToEnd();
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, $"Error while downloading AC from Azure Blob Storage. Blob name : {blobName} , Error details: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<CardTemplatedataEntity>> DownloadAllCardTemplatesAsync()
+        {
+            try
+            {
+                var blobContainerClient = await this.GetBlobContainer(TemplatesBlobContainerName);
+
+                var blobs = blobContainerClient.GetBlobs();
+                var templates = new List<CardTemplatedataEntity>();
+                foreach (var blob in blobs)
+                {
+                    var client = blobContainerClient.GetBlobClient(blob.Name);
+                    using (var stream = new MemoryStream())
+                    using (var reader = new StreamReader(stream))
+                    {
+                        await client.DownloadToAsync(stream);
+                        stream.Position = 0;
+
+                        templates.Add(new CardTemplatedataEntity { Name = blob.Name, Card = reader.ReadToEnd() });
+                    }
+                }
+
+                return templates;
+
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, $"Error while downloading templates from Azure Blob Storage. Blob container name : {TemplatesBlobContainerName} , Error details: {ex.Message}");
+                throw;
+            }
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<string> DownloadCardTemplateAsync(string blobName)
+        {
+            try
+            {
+                var blobContainerClient = await this.GetBlobContainer(TemplatesBlobContainerName);
+
                 var blob = blobContainerClient.GetBlobClient(blobName);
 
                 using (var stream = new MemoryStream())

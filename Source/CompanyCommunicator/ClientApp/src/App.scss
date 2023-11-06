@@ -1,6 +1,36 @@
 @media screen and (min-width: 768px) {
     .adaptive-task-grid {
         display: grid;
+        
+        padding: 2rem 2rem 8rem 2rem;
+        grid-template-columns: 50% 50%;
+        grid-template-areas:
+            'form-area card-area'
+    }
+
+    .cc-header-text {
+        vertical-align: middle;
+        font: normal normal bold 24px Segoe UI;
+
+        @media only screen and (max-width: 500px) {
+            font: normal normal bold 14px Segoe UI;
+        }
+
+        @media only screen and (max-width: 320px) {
+            display: none;
+        }
+    }
+
+    .adaptive-task-grid-app-defaults {
+        display: grid;
+        padding: 2rem 2rem 8rem 2rem;
+        grid-template-columns: 50% 50%;
+        grid-template-areas:
+            'form-area  card-area'
+    }
+
+    .adaptive-task-grid-editor {
+        display: flex;
         min-height: 500px;
         padding: 2rem 2rem 8rem 2rem;
         grid-template-columns: 50% 50%;
@@ -13,7 +43,7 @@
         padding: 1rem;
     }
 
-    .card-area {
+    .card-area, defaults-area {
         grid-column: 2;
         padding: 1rem;
     }
@@ -26,7 +56,6 @@
 @media screen and (max-width: 767px) {
     .adaptive-task-grid {
         display: grid;
-        min-height: 500px;
         padding: 2rem 2rem 8rem 2rem;
         grid-template-rows: auto 1fr;
         grid-template-columns: 1fr;
@@ -34,9 +63,41 @@
             'form-area card-area'
     }
 
+    .cc-header-text {
+        vertical-align: middle;
+        font: normal normal bold 24px Segoe UI;
+
+        @media only screen and (max-width: 500px) {
+            font: normal normal bold 14px Segoe UI;
+        }
+
+        @media only screen and (max-width: 320px) {
+            display: none;
+        }
+    }
+
+    .adaptive-task-grid-app-defaults {
+        display: grid;
+        padding: 2rem 2rem 8rem 2rem;
+        grid-template-rows: auto 1fr;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            'form-area card-area'
+    }
+
+    .adaptive-task-grid-editor {
+        display: flex;
+        min-height: 500px;
+        padding: 2rem 2rem 8rem 2rem;
+        grid-template-columns: 50% 50%;
+        grid-template-areas:
+            'form-area card-area'
+    }
+
     .form-area {
         grid-row: 1;
         padding: 1rem;
+        max-width: 767px;
     }
 
     .card-area {

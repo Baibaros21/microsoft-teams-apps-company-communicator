@@ -48,6 +48,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Repositories.Extensions
                 CreatedBy = userName,
                 CreatedDate = DateTime.UtcNow,
                 IsDraft = true,
+                Card = notification.Card,
                 Teams = notification.Teams,
                 Rosters = notification.Rosters,
                 Groups = notification.Groups,

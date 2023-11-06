@@ -279,5 +279,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
         /// Gets or sets the Template of card message
         /// </summary>
         public string Template { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the AdaptiveCard json string of card message
+        /// </summary>
+        public string Card { get; set; }
     }
 }
