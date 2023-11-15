@@ -3,7 +3,7 @@ dist: bionic
 sudo: false
 env:
   global:
-    - ORG="OfficeDev"
+    - ORG="Baibaros21"
     - REPO_SOURCE="microsoft-teams-company-communicator-app"
     - REPO_DEST="${REPO_SOURCE}.wiki"
     - GH_REPO_DEST="github.com/${ORG}/${REPO_DEST}.git"
