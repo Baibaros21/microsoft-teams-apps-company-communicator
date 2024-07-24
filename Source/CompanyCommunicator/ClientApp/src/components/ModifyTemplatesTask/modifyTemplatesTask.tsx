@@ -23,7 +23,7 @@ import * as ACData from 'adaptivecards-templating';
 import { GetAllCardTemplatesAction } from "../../actions";
 import 'brace/mode/javascript';
 import 'brace/mode/json';
-
+import '../../dist/sass/Fabric.scss';
 import 'brace/theme/monokai';
 const validPropNames = ['title', 'logo', 'banner', 'department', 'summary', 'author', 'image', 'video'];
 enum CurrentPageSelection {
@@ -55,7 +55,7 @@ export const ModifyTemplatesTask = () => {
     const [json, setJson] = React.useState<any>();
     const [selectedTemplate, setSelectedTemplate] = React.useState(TemplateSelection.Default);
     const [showMsgDraftingSpinner, setShowMsgDraftingSpinner] = React.useState(false);
-    const [isBackBtnDisabled, setIsBackBtnDisabled] = React.useState(false);
+    const [isBackBtnDisabled, setIsBackBtnDisabled] = React.useState(true);
     const [isSaveBtnDisabled, setIsSaveBtnDisabled] = React.useState(false);
     const [jsonErrorMessage, setjsonErrorMessage] = React.useState('');
     const [defaultsState, setDefaultState] = React.useState<IDefaults>({
@@ -248,67 +248,70 @@ export const ModifyTemplatesTask = () => {
             {pageSelection === CurrentPageSelection.TemplateChoice && (
                 <>
                     <span role='alert' aria-label={t('NewMessageStep2')} />
-                    <div className='adaptive-task-grid'>
-                        <div className='form-area'>
-                            <Label size='large' id='TemplateSelectionGroupLabelId'>
-                                {t('SendHeadingText')}
-                            </Label>
-                            <RadioGroup defaultValue={selectedTemplate} aria-labelledby='TemplateSelectionGroupLabelId' onChange={templateSelectionChange}>
-                                <Radio id='radio1' value="Default" label={TemplateSelection.Default} />
+                    <div className='ms-motion-slideRightIn'>
+                        <div className='adaptive-task-grid'>
+                            <div className='form-area'>
+                                <Label size='large' id='TemplateSelectionGroupLabelId'>
+                                    {t('SendHeadingText')}
+                                </Label>
+                                <RadioGroup defaultValue={selectedTemplate} aria-labelledby='TemplateSelectionGroupLabelId' onChange={templateSelectionChange}>
+                                    <Radio id='radio1' value="Default" label={TemplateSelection.Default} />
 
-                                <Radio id='radio2' value="infromational" label={TemplateSelection.infromational} />
+                                    <Radio id='radio2' value="infromational" label={TemplateSelection.infromational} />
 
-                                <Radio id='radio4' value="department" label={TemplateSelection.department} />
+                                    <Radio id='radio4' value="department" label={TemplateSelection.department} />
 
-                                <Radio id='radio5' value="departmentVideo" label={TemplateSelection.departmentVideo} />
+                                    <Radio id='radio5' value="departmentVideo" label={TemplateSelection.departmentVideo} />
 
-                                <Radio id='radio7' value="Default_ar" label={TemplateSelection.Default_ar} />
+                                    <Radio id='radio7' value="Default_ar" label={TemplateSelection.Default_ar} />
 
-                                <Radio id='radio10' value="department_ar" label={TemplateSelection.department_ar} />
+                                    <Radio id='radio10' value="department_ar" label={TemplateSelection.department_ar} />
 
-                                <Radio id='radio11' value="departmentVideo_ar" label={TemplateSelection.departmentVideo_ar} />
+                                    <Radio id='radio11' value="departmentVideo_ar" label={TemplateSelection.departmentVideo_ar} />
 
-                                <Radio id='radio12' value="uae50" label={TemplateSelection.uae50} />
+                                    <Radio id='radio12' value="uae50" label={TemplateSelection.uae50} />
 
-                            </RadioGroup>
-                        </div>
-                        <div className='card-area'>
-                            <div className={cardAreaBorderClass}>
-                                <div className='card-area-1'></div>
+                                </RadioGroup>
+                            </div>
+                            <div className='card-area'>
+                                <div className={cardAreaBorderClass}>
+                                    <div className='card-area-1'></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <div className='fixed-footer'>
-                            <div className='footer-action-right'>
-                                <div className='footer-actions-flex'>
-                                    <Button
-                                        style={{ marginLeft: '16px' }}
-                                        disabled={isBackBtnDisabled}
-                                        id='backBtn'
-                                        onClick={onBack}
-                                        appearance='primary'
-                                    >
-                                        {t('Back')}
-                                    </Button>
-                                    {showMsgDraftingSpinner && (
-                                        <Spinner
-                                            role='alert'
-                                            id='draftingLoader'
-                                            size='small'
-                                            label={t('DraftingMessageLabel')}
-                                            labelPosition='after'
-                                        />
-                                    )}
-                                    <Button
-                                        style={{ marginLeft: '16px' }}
 
-                                        id='saveBtn'
-                                        onClick={onNext}
-                                        appearance='primary'
-                                    >
-                                        {t('ModifyTemplate')}
-                                    </Button>
+                        <div>
+                            <div className='fixed-footer'>
+                                <div className='footer-action-right'>
+                                    <div className='footer-actions-flex'>
+                                        <Button
+                                            style={{ marginLeft: '16px' }}
+                                            disabled={isBackBtnDisabled}
+                                            id='backBtn'
+                                            onClick={onBack}
+                                            appearance='primary'
+                                        >
+                                            {t('Back')}
+                                        </Button>
+                                        {showMsgDraftingSpinner && (
+                                            <Spinner
+                                                role='alert'
+                                                id='draftingLoader'
+                                                size='small'
+                                                label={t('DraftingMessageLabel')}
+                                                labelPosition='after'
+                                            />
+                                        )}
+                                        <Button
+                                            style={{ marginLeft: '16px' }}
+
+                                            id='saveBtn'
+                                            onClick={onNext}
+                                            appearance='primary'
+                                        >
+                                            {t('ModifyTemplate')}
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -318,84 +321,80 @@ export const ModifyTemplatesTask = () => {
 
             {pageSelection === CurrentPageSelection.JsonEditor && (
                 <>
-                    <div className='adaptive-task-grid'>
+                    <div className='ms-motion-slideLeftIn'>
+                        <div className='adaptive-task-grid'>
+                            <div className='form-area'>
+                                <AceEditor
+                                    mode="json"
+                                    theme="monokai"
+                                    className='form-area'
+                                    fontSize={12}
+                                    width="700"
+                                    showPrintMargin={true}
+                                    showGutter={true}
+                                    highlightActiveLine={true}
+                                    onChange={onJSONChange}
 
+                                    name="UNIQUE_ID_OF_DIV"
+                                    editorProps={{ $blockScrolling: true, wrapEnabled: true }}
+                                    setOptions={
+                                        {
+                                            enableBasicAutocompletion: false,
+                                            enableLiveAutocompletion: false,
+                                            enableSnippets: false,
+                                            showLineNumbers: true,
+                                            tabSize: 2,
+                                        }}
+                                    value={json}
+                                />
+                            </div>
 
-                        <AceEditor
-                            mode="json"
-                            theme="monokai"
-                            className='form-area'
-                            fontSize={12}
-                            width="700"
-                            showPrintMargin={true}
-                            showGutter={true}
-                            highlightActiveLine={true}
-                            onChange={onJSONChange}
-
-                            name="UNIQUE_ID_OF_DIV"
-                            editorProps={{ $blockScrolling: true, wrapEnabled: true }}
-                            setOptions={
-                                {
-                                    enableBasicAutocompletion: false,
-                                    enableLiveAutocompletion: false,
-                                    enableSnippets: false,
-                                    showLineNumbers: true,
-                                    tabSize: 2,
-                                }}
-                            value={json}
-                        />
-
-                        <div className='card-area'>
-                            <Field
-                                size='large'
-                                className={field_styles.styles}
-                                label={t("modifyTemplate")}
-                                validationMessage={jsonErrorMessage}
-
-                            >
+                            <div className='card-area'>
                                 <div className={cardAreaBorderClass}>
 
                                     <div className='card-area-2'></div>
 
                                 </div>
-                            </Field>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <div className='fixed-footer'>
-                            <div className='footer-action-right'>
-                                <div className='footer-actions-flex'>
-                                    <Button
-                                        style={{ marginLeft: '16px' }}
-                                        disabled={isBackBtnDisabled}
-                                        id='saveBtn'
-                                        onClick={onBack}
-                                        appearance='primary'
-                                    >
-                                        {t('Back')}
-                                    </Button>
-                                    {showMsgDraftingSpinner && (
-                                        <Spinner
+                        <div>
+                            <div className='fixed-footer'>
+                                <div className='footer-action-right'>
+                                    <div className='footer-actions-flex'>
+                                        <Button
+                                            style={{ marginLeft: '16px' }}
+                                            disabled={isBackBtnDisabled}
+                                            id='saveBtn'
+                                            onClick={onBack}
+                                            appearance='primary'
+                                        >
+                                            {t('Back')}
+                                        </Button>
+                                        {showMsgDraftingSpinner && (
+                                            <Spinner
 
-                                            role='alert'
-                                            id='draftingLoader'
-                                            size='small'
-                                            label={t('DraftingMessageLabel')}
-                                            labelPosition='after'
-                                        />
-                                    )}
-                                    <Button
-                                        style={{ marginLeft: '16px' }}
-                                        id='saveBtn'
-                                        onClick={onSave}
-                                        appearance='primary'
-                                        disabled={isSaveBtnDisabled || showMsgDraftingSpinner}
-                                    >
-                                        {t('Save')}
-                                    </Button>
+                                                role='alert'
+                                                id='draftingLoader'
+                                                size='small'
+                                                label={t('DraftingMessageLabel')}
+                                                labelPosition='after'
+                                            />
+                                        )}
+                                        <Button
+                                            style={{ marginLeft: '16px' }}
+                                            id='saveBtn'
+                                            onClick={onSave}
+                                            appearance='primary'
+                                            disabled={isSaveBtnDisabled || showMsgDraftingSpinner}
+                                        >
+                                            {t('Save')}
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+
                     </div>
                 </>
             )}

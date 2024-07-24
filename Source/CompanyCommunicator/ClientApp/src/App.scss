@@ -1,8 +1,7 @@
 @media screen and (min-width: 768px) {
     .adaptive-task-grid {
         display: grid;
-        
-        padding: 2rem 2rem 8rem 2rem;
+        padding: 2rem 2rem 2rem 2rem;
         grid-template-columns: 50% 50%;
         grid-template-areas:
             'form-area card-area'
@@ -23,7 +22,7 @@
 
     .adaptive-task-grid-app-defaults {
         display: grid;
-        padding: 2rem 2rem 8rem 2rem;
+        padding: 2rem 2rem 2rem 2rem;
         grid-template-columns: 50% 50%;
         grid-template-areas:
             'form-area  card-area'
@@ -31,7 +30,6 @@
 
     .adaptive-task-grid-editor {
         display: flex;
-        min-height: 500px;
         padding: 2rem 2rem 8rem 2rem;
         grid-template-columns: 50% 50%;
         grid-template-areas:
@@ -41,11 +39,13 @@
     .form-area {
         grid-column: 1;
         padding: 1rem;
+        max-height: 500px;
     }
 
     .card-area, defaults-area {
         grid-column: 2;
         padding: 1rem;
+        max-height: 500px;
     }
 
     .big-screen-visible {
