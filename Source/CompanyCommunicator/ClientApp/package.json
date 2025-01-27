@@ -7,7 +7,7 @@
     "@fluentui/react-components": "^9.20.2",
     "@fluentui/react-datepicker-compat": "^0.1.4",
     "@fluentui/react-utilities": "^9.9.0",
-    "@microsoft/teams-js": "^2.11.0",
+    "@microsoft/teams-js": "^2.33.0",
     "@reduxjs/toolkit": "^1.9.5",
     "@types/react-redux": "^7.1.25",
     "@types/react-router-dom": "^5.3.3",
@@ -19,6 +19,7 @@
     "company-communicator": "file:",
     "faker": "^5.5.3",
     "font-awesome": "^4.7.0",
+    "i18next": "^22.5.0",
     "i18next-browser-languagedetector": "^7.0.1",
     "i18next-http-backend": "^2.2.1",
     "markdown-it": "^13.0.1",
@@ -41,6 +42,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
+  },
+  "build": {
+    "sourceMap": true
   },
   "eslintConfig": {
     "extends": "react-app"

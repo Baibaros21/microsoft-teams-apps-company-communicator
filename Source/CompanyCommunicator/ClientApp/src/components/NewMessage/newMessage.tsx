@@ -178,12 +178,36 @@ export const NewMessage = () => {
     const [searchSelectedOptions, setSearchSelectedOptions] = React.useState<ITeamTemplate[]>([]);
     //const [cardTemplates, setCardTemplates] = React.useState<[ITemplates]>();
 
+    const fetchData = async () => {
+        try {
+            if (microsoftTeams.app.isInitialized()) {
+                // Use the token for authenticated API calls
+                GetTeamsDataAction(dispatch);
+                VerifyGroupAccessAction(dispatch);
+                GetAllCardTemplatesAction(dispatch);
+                getDefaultsItem();
+            }
+            else {
+                console.error('App not intialized:');
+            }
+
+
+        } catch (error) {
+            console.error('Authentication failed:', error);
+        }
+    };
+
     React.useEffect(() => {
-        GetTeamsDataAction(dispatch);
-        VerifyGroupAccessAction(dispatch);
-        GetAllCardTemplatesAction(dispatch);
-        getDefaultsItem();
+        fetchData();
     }, []);
+
+    React.useEffect(() => {
+        if (id) {
+            fetchData();
+            GetGroupsAction(dispatch, { id });
+            getDraftNotificationItem(id);
+        }
+    }, [id]);
 
     React.useEffect(() => {
         if (Templates && Templates.length > 0) {

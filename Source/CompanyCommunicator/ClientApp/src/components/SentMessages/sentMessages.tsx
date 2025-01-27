@@ -55,8 +55,9 @@ export const SentMessages = () => {
         if (sentMessages && sentMessages.length === 0) {
             GetSentMessagesAction(dispatch);
             setFilteredMessages(sentMessages);
+
         }
-    }, []);
+    }, [sentMessages]);
 
     React.useEffect(() => {
 

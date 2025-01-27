@@ -38,6 +38,7 @@ export const App = () => {
         app
             .initialize()
             .then(() => {
+                console.log("Intialized")
                 setAppInitializationComplete(true);
             })
             .catch(() => {

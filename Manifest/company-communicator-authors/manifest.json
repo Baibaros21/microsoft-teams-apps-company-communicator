@@ -6,9 +6,9 @@
   "packageName": "com.microsoft.teams.companycommunicator.authors",
   "developer": {
     "name": "blueridgeit",
-    "websiteUrl": "http://www.blueridgeit.com",
-    "privacyUrl": "http://www.blueridgeit.com",
-    "termsOfUseUrl": "http://www.blueridgeit.com"
+    "websiteUrl": "https://www.blueridgeit.com",
+    "privacyUrl": "https://www.blueridgeit.com",
+    "termsOfUseUrl": "https://www.blueridgeit.com"
   },
   "icons": {
     "color": "color.png",

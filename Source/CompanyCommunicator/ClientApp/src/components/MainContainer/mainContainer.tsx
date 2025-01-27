@@ -46,11 +46,14 @@ export const MainContainer = (props: IMainContainer) => {
     const loader = useAppSelector((state: RootState) => state.messages).isCardTemplatesFetchOn.payload;
     const Templates: any = useAppSelector((state: RootState) => state.messages).cardTemplates.payload;
     const [customHeaderImagePath, setCustomeHeaderImagepath] = React.useState<any>(mslogo);
+    const [currentUser, setCurrentUser] = React.useState<string | undefined>();
 
     React.useEffect(() => {
-        GetAllCardTemplatesAction(dispatch);
-        getDefaultsItem();
-
+        if (app.isInitialized()) {
+            void app.getContext().then((context: app.Context) => {
+                setCurrentUser(context.user?.userPrincipalName);
+            });
+        }
     }, []);
 
     const getDefaultsItem = async () => {
@@ -168,7 +171,7 @@ export const MainContainer = (props: IMainContainer) => {
                 </div>
             </div>
             <Divider />
-            {Templates && Templates.length > 0 && !loader &&
+            
                 <>
 
                     <div className="cc-new-message">
@@ -195,7 +198,7 @@ export const MainContainer = (props: IMainContainer) => {
                             </AccordionPanel>
                         </AccordionItem>
                     </Accordion>
-                </>}
+                </>
         </>
     );
 };

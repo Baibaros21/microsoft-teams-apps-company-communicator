@@ -28,7 +28,6 @@ import {
   OpenRegular,
   SendRegular,
 } from "@fluentui/react-icons";
-import * as microsoftTeams from "@microsoft/teams-js";
 import { app, dialog, DialogDimension, UrlDialogInfo } from '@microsoft/teams-js';
 import { GetDraftMessagesSilentAction, GetSentMessagesSilentAction } from "../../actions";
 import { deleteDraftNotification, duplicateDraftNotification, sendPreview } from "../../apis/messageListApi";
@@ -75,7 +74,11 @@ export const DraftMessageDetail = (draftMessages: any) => {
         };
 
         // now open the dialog
-        dialog.url.open(dialogInfo, submitHandler);
+        //dialog.url.open(dialogInfo, submitHandler);
+        // now open the dialog
+        if (app.isInitialized()) {
+            dialog.url.open(dialogInfo, submitHandler);
+        }
     };
 
 
