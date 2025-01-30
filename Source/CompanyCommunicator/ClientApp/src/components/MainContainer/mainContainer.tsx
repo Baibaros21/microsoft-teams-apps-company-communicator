@@ -45,7 +45,7 @@ export const MainContainer = (props: IMainContainer) => {
     const dispatch = useAppDispatch();
     const loader = useAppSelector((state: RootState) => state.messages).isCardTemplatesFetchOn.payload;
     const Templates: any = useAppSelector((state: RootState) => state.messages).cardTemplates.payload;
-    const [customHeaderImagePath, setCustomeHeaderImagepath] = React.useState<any>(mslogo);
+    const [customHeaderImagePath, setCustomeHeaderImagepath] = React.useState<any>(null);
 
     React.useEffect(() => {
         GetAllCardTemplatesAction(dispatch);
@@ -116,12 +116,12 @@ export const MainContainer = (props: IMainContainer) => {
         <>
             <div className={props.theme === teamsLightTheme ? "cc-header-light" : "cc-header"}>
                 <div className="cc-main-left">
-                    <img
+                    {(customHeaderImagePath!==null|| customHeaderImagePath !=="") && <img
                         src={customHeaderImagePath}
-                        alt="Microsoft logo"
+                        alt=""
                         className="cc-logo"
                         title={customHeaderText}
-                    />
+                    />}
                     <span className="cc-title" title={customHeaderText}>
                         {customHeaderText}
                     </span>

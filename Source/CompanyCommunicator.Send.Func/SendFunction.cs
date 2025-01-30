@@ -7,6 +7,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
 {
     using System;
     using System.Threading.Tasks;
+    using AdaptiveCards;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Schema;
@@ -23,6 +24,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams;
     using Microsoft.Teams.Apps.CompanyCommunicator.Send.Func.Services;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Azure Function App triggered by messages from a Service Bus queue
@@ -48,6 +50,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
         private readonly ISendQueue sendQueue;
         private readonly IStringLocalizer<Strings> localizer;
         private readonly IMemoryCache memoryCache;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendFunction"/> class.
@@ -266,7 +269,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
         {
             var cacheKeySentCard = CachePrefixSentCards + message.NotificationId;
             bool isCacheEntryExists = this.memoryCache.TryGetValue(cacheKeySentCard, out string jsonAC);
-
             if (!isCacheEntryExists)
             {
                 // Download serialized AC from blob storage.
@@ -277,13 +279,55 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                                 $"\nNotificationId Id: {message.NotificationId}");
             }
 
-            var adaptiveCardAttachment = new Attachment()
-            {
-                ContentType = AdaptiveCardContentType,
-                Content = JsonConvert.DeserializeObject(jsonAC),
-            };
 
-            return MessageFactory.Attachment(adaptiveCardAttachment);
+            try
+            {
+                log.LogInformation($"Parsing the JSON string." +
+                                $"\n {jsonAC}");
+
+               JObject jsonObject = JObject.Parse(jsonAC);
+
+                var serializedJsonAC = JsonConvert.SerializeObject(jsonObject);
+
+
+                log.LogInformation($"Serialized JObject." +
+                $"\n {serializedJsonAC}");
+
+               // var serializedJsonAC = JsonConvert.SerializeObject(jsonObject);
+
+               // log.LogInformation($"Parsing the JSON string." +$"\n {serializedJsonAC}");
+                
+                // Parse the JSON string
+                AdaptiveCardParseResult result = AdaptiveCard.FromJson(serializedJsonAC);
+
+                // Get the AdaptiveCard object
+                AdaptiveCard card = result.Card;
+                var adaptiveCardAttachment = new Attachment()
+                {
+                    ContentType = AdaptiveCardContentType,
+                    Content = card,
+                };
+
+                return MessageFactory.Attachment(adaptiveCardAttachment);
+            }
+            catch (Exception error)
+            {
+                log.LogError(error, $"Failed to parse the JSON string." +
+                                $"\nNotificationId Id: {message.NotificationId}\n {error.Message}");
+
+                // Parse the JSON string
+
+                var adaptiveCardAttachment = new Attachment()
+                {
+                    ContentType = AdaptiveCardContentType,
+                    Content = JsonConvert.DeserializeObject(jsonAC),
+                };
+
+                return MessageFactory.Attachment(adaptiveCardAttachment);
+            }
+
+            
         }
+        
     }
 }

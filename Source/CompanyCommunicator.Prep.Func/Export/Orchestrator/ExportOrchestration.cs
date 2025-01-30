@@ -46,7 +46,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Prep.Func.Export.Orchestrator
                 {
                     log.LogInformation("About to update export is in progress.");
                 }
-
+                log.LogInformation("About to update export is in progress.");
                 exportDataEntity.Status = ExportStatus.InProgress.ToString();
                 await context.CallActivityWithRetryAsync(
                     FunctionNames.UpdateExportDataActivity,
@@ -62,7 +62,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Prep.Func.Export.Orchestrator
                     FunctionNames.GetMetadataActivity,
                     FunctionSettings.DefaultRetryOptions,
                     (sentNotificationDataEntity, exportDataEntity));
-
+                log.LogInformation("About to get the metadata information.");
                 if (!context.IsReplaying)
                 {
                     log.LogInformation("About to start file upload.");
@@ -72,7 +72,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Prep.Func.Export.Orchestrator
                     FunctionNames.UploadActivity,
                     FunctionSettings.DefaultRetryOptions,
                     (sentNotificationDataEntity, metaData, exportDataEntity.FileName));
-
+                log.LogInformation("About to start file upload.");
                 if (!context.IsReplaying)
                 {
                     log.LogInformation("About to send file card.");
@@ -82,7 +82,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Prep.Func.Export.Orchestrator
                     FunctionNames.SendFileCardActivity,
                     FunctionSettings.DefaultRetryOptions,
                     (exportRequiredData.UserId, exportRequiredData.NotificationDataEntity.Id, exportDataEntity.FileName));
-
+                log.LogInformation("About to send file card.");
                 if (!context.IsReplaying)
                 {
                     log.LogInformation("About to update export is completed.");

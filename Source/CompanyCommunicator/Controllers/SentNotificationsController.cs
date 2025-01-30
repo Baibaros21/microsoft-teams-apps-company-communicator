@@ -146,7 +146,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
             //serliaze the card json string 
             JObject jsonObject = JObject.Parse(draftNotification.Card);
             // Save Adaptive Card with data uri into blob storage. Blob name = notification.Id.
-            await this.sendingNotificationDataRepository.SaveAdaptiveCardAsync(newSentNotificationId, jsonObject.ToString());
+            await this.sendingNotificationDataRepository.SaveAdaptiveCardAsync(newSentNotificationId, draftNotification.Card);
 
 
             // Update user app id if proactive installation is enabled.

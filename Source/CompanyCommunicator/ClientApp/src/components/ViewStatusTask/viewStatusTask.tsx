@@ -351,6 +351,7 @@ export const ViewStatusTask = () => {
                             </div>
                         </div>
                     </div>
+                    <div>
                     <div className='fixed-footer'>
                         <div className='footer-action-right'>
                             <div className='footer-actions-flex'>
@@ -366,6 +367,7 @@ export const ViewStatusTask = () => {
                                     {t('ExportButtonText')}
                                 </Button>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </>

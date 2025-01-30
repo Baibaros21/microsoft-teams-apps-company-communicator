@@ -936,7 +936,7 @@ export const NewMessage = () => {
 
 
             {pageSelection === CurrentPageSelection.CardCreation && Templates && Templates.length > 0 && (
-                <>
+                <div className="page-container">
                     <span role='alert' aria-label={t('NewMessageStep1')} />
                     <div className='adaptive-task-grid'>
                         <div className='form-area'>
@@ -1192,7 +1192,7 @@ export const NewMessage = () => {
                             </div>
                         </div>
                     </div>
-                </>
+                </div>
             )}
             {pageSelection === CurrentPageSelection.AudienceSelection && (
                 <>
